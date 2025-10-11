@@ -1,30 +1,45 @@
-
 import express from 'express';
 import connectDB from './config/db.js';
 import cors from 'cors';
-const app = express();
-const PORT = process.env.PORT || 3001;
+import cookieParser from 'cookie-parser';
 import authRoute from './routes/UserRoutes.js';
 import authRoutes from "./routes/auth.js";
-import cookieParser from 'cookie-parser';
 
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+// ✅ Connect to database
 await connectDB();
 
-app.use(cors());
+// ✅ Define allowed origins (local + Vercel frontend)
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://admin-chatbot-frontend.vercel.app"
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like Postman)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(cookieParser());
 
+// ✅ Test route
 app.get('/', (req, res) => {
-    res.send('Welcome to the API');
+  res.send('Welcome to the API');
 });
 
-app.use("/api/auth",authRoute);
+// ✅ Routes
+app.use("/api/auth", authRoute);
 app.use("/api/auth", authRoutes);
 
-// app.listen(PORT, async () => {
-//     console.log(`Server is running on http://localhost:${PORT}`);
-//     
-// });
-
-
+// For Vercel serverless, don't use app.listen
 export default app;
