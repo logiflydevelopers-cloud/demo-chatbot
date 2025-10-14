@@ -6,13 +6,10 @@ import Login from "./Components/Auth/Login";
 import Register from "./Components/Auth/Register";
 import UserDetails from "./Components/Auth/UserDetails";
 import Header from "./Layout/Header";
-// import Footer from "./Layout/Footer";
+import Footer from "./Layout/Footer";
 import Home from "./Layout/Home";
 import "./Layout/Home.css";
 import "./App.css";
-
-// નવા કમ્પોનન્ટને અહીં ઇમ્પોર્ટ કરો
-import N8nDataDisplay from "./N8nDataDisplay";
 
 
 function App() {
@@ -49,9 +46,8 @@ function App() {
 
       <main className="main-content">
         <Routes>
-          {/* અહીં N8nDataDisplay કમ્પોનન્ટ ઉમેરવામાં આવ્યો છે */}
-          {/* Home કમ્પોનન્ટની જગ્યાએ આને ડિસ્પ્લે કરવા માટે */}
-          <Route path="/" element={<N8nDataDisplay />} />
+          {/* Pass user prop so Home can conditionally render form */}
+          <Route path="/" element={<Home user={user} />} />
 
           {/* Redirect logged-in users away from login/register */}
           <Route
@@ -68,8 +64,6 @@ function App() {
             path="/userDetails"
             element={user ? <UserDetails user={user} setUser={setUser} /> : <Navigate to="/login" />}
           />
-
-
         </Routes>
       </main>
 
