@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 // Node.js બેકએન્ડનો URL જ્યાંથી ડેટા મેળવવાનો છે
-const API_URL = "http://localhost:5000/api/data";
+const API_URL = "https://logifly.app.n8n.cloud/webhook-test/add-website";
 
 const N8nDataDisplay = ({ user }) => {
   const [data, setData] = useState(null);
