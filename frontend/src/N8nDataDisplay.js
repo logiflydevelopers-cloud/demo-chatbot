@@ -1,15 +1,23 @@
+// src/N8nDataDisplay.js
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 // Node.js બેકએન્ડનો URL જ્યાંથી ડેટા મેળવવાનો છે
-const API_URL = "https://logifly.app.n8n.cloud/webhook-test/add-website";
+const API_URL = "http://localhost:5000/api/data";
 
-const N8nDataDisplay = () => {
+const N8nDataDisplay = ({ user }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // જો યુઝર લોગ ઇન હોય તો જ ડેટા ફેચ કરો
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const response = await axios.get(API_URL);
@@ -22,7 +30,12 @@ const N8nDataDisplay = () => {
     };
 
     fetchData();
-  }, []);
+  }, [user]); // user prop માં ફેરફાર થાય ત્યારે ફરીથી ચલાવો
+
+  // જો યુઝર લોગ ઇન ન હોય તો કંઈપણ પ્રદર્શિત કરશો નહીં
+  if (!user) {
+    return null;
+  }
 
   if (loading) {
     return <div>ડેટા લોડ થઈ રહ્યો છે...</div>;
@@ -50,7 +63,7 @@ const N8nDataDisplay = () => {
     );
   }
 
-  // જો કોઈ ડેટા મળ્યો જ ન હોય
+  // જો કોઈ ડેટા ઉપલબ્ધ ન હોય
   return <div>કોઈ ડેટા ઉપલબ્ધ નથી.</div>;
 };
 

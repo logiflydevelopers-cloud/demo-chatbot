@@ -1,4 +1,5 @@
 // src/Home.js
+
 import React from "react";
 import AddWebsiteForm from "./AddWebsiteForm";
 import styles from "./Home.css";
@@ -12,10 +13,10 @@ const Home = ({ user }) => {
 
       {user ? (
         <>
-          {/* <p className={styles.subtitle}>You can add your websites below:</p> */}
+          <p className={styles.subtitle}>You can add your websites below:</p>
           <AddWebsiteForm user={user} />
-          {/* અહીં N8nDataDisplay કમ્પોનન્ટ ઉમેરો */}
-          <N8nDataDisplay />
+          {/* અહીં N8nDataDisplay કમ્પોનન્ટ ઉમેરો અને user પ્રોપ પાસ કરો */}
+          <N8nDataDisplay user={user} />
         </>
       ) : (
         <p className={styles.loginPrompt}>
