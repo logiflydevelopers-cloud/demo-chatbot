@@ -7,7 +7,7 @@ import Login from "./Components/Auth/Login";
 import Register from "./Components/Auth/Register";
 import UserDetails from "./Components/Auth/UserDetails";
 import Header from "./Layout/Header";
-import Footer from "./Layout/Footer";
+// import Footer from "./Layout/Footer";
 import Home from "./Layout/Home";
 import DataDisplay from "./Layout/DataDisplay";
 import CustomChatPage from "./Layout/CustomChatPage";
