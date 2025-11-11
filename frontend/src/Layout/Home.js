@@ -1,17 +1,27 @@
-import React from "react";
+import React, { useState } from "react";
 import AddWebsiteForm from "./AddWebsiteForm";
+import DataDisplay from "./DataDisplay";
 import styles from "./Home.css";
 
 const Home = ({ user }) => {
+  const [refresh, setRefresh] = useState(false);
+
+  // form submit થયા પછી call થવાનું function
+  const handleWebsiteAdded = () => {
+    setRefresh((prev) => !prev); // toggle કરી રિફ્રેશ ટ્રિગર કરશે
+  };
+
   return (
     <div className="home-container">
-      {/* Only show welcome message if user is not logged in */}
       {!user && <h1 className={styles.title}>Welcome to Your Dashboard</h1>}
 
       {user ? (
         <>
-          {/* <p className={styles.subtitle}>You can add your websites below:</p> */}
-          <AddWebsiteForm user={user} />
+          <AddWebsiteForm user={user} onWebsiteAdded={handleWebsiteAdded} />
+
+          <hr style={{ margin: "30px 0" }} />
+
+          <DataDisplay user={user} triggerRefresh={refresh} />
         </>
       ) : (
         <p className={styles.loginPrompt}>

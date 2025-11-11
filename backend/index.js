@@ -1,45 +1,45 @@
-import express from 'express';
-import connectDB from './config/db.js';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import authRoute from './routes/UserRoutes.js';
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import connectDB from "./config/db.js";
+
+// ✅ Import all routes
 import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/UserRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
+import webhookRoutes from "./routes/webhook.js";
+import embedRoutes from "./routes/embed.js"; // ✅ this one must be here
+
+dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5678;
 
-// ✅ Connect to database
-await connectDB();
-
-// ✅ Define allowed origins (local + Vercel frontend)
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://admin-chatbot-frontend.vercel.app"
-];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like Postman)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true
-}));
-
+// ✅ Middlewares
+app.use(cors({ origin: "*", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ Test route
-app.get('/', (req, res) => {
-  res.send('Welcome to the API');
+// ✅ Allow iframe embedding
+app.use((req, res, next) => {
+  res.setHeader("X-Frame-Options", "ALLOWALL");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  next();
 });
 
-// ✅ Routes
-app.use("/api/auth", authRoute);
-app.use("/api/auth", authRoutes);
+// ✅ Connect database (if needed)
+connectDB();
 
-// For Vercel serverless, don't use app.listen
-export default app;
+// ✅ Basic route
+app.get("/", (req, res) => res.send("✅ Chatbot Backend running..."));
+
+// ✅ Register routes
+app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/chat", chatRoutes);
+app.use("/api/webhook", webhookRoutes);
+app.use("/embed", embedRoutes); // ✅ VERY IMPORTANT
+
+// ✅ Start server
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
