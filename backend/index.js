@@ -9,7 +9,7 @@ import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/UserRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import webhookRoutes from "./routes/webhook.js";
-import embedRoutes from "./routes/embed.js"; // ✅ this one must be here
+import embedRoutes from "./routes/embed"; // ✅ this one must be here
 
 dotenv.config();
 
