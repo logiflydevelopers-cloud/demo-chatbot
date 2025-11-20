@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { generateAccessToken, generateRefreshToken } from "../token.js";
 dotenv.config();
 export const registerUser = async (req, res) => {
+  console.log("Registering user with data:", req.body);
   try {
     const { name, email, mobile, password } = req.body;
     if (!name || !email || !mobile || !password) {
@@ -32,10 +33,12 @@ export const loginUser = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
+
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "User not exists" });
     }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid Password" });
@@ -50,14 +53,24 @@ export const loginUser = async (req, res) => {
       sameSite: "Lax",
       maxAge: 1 * 24 * 60 * 60 * 1000,
     });
+
+    // 🔥 SEND FULL USER DETAILS
     res.status(200).json({
-      message: "Login Successfull",
+      message: "Login Successful",
       accessToken,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        mobile: user.mobile,
+      }
     });
+
   } catch (error) {
     res.status(500).json({ message: "Server error.", error });
   }
 };
+
 
 export const getUserDetails = async (req, res) => {
   try {
@@ -69,7 +82,9 @@ export const getUserDetails = async (req, res) => {
     const decoded = jwt.verify(token, process.env.ACCESS_SECRET);
     console.log(decoded);
 
-    const user = await User.findOne({ _id: decoded.userId });
+    const realId = decoded.userId || decoded.id || decoded._id;
+    const user = await User.findById(realId);
+
     if (!user) {
       return res.status(404).json({ message: "User Not Found" });
     }

@@ -1,59 +1,49 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import axios from "axios";
-import User from "../models/User.js"; // Mongoose model
-
-const N8N_WEBHOOK = "https://your-n8n-domain/webhook/login-success"; 
-const N8N_SECRET = "mySecret123";
+import User from "../models/User.js";
+import { generateAccessToken, generateRefreshToken } from "../token.js";  // <-- ADD THIS
 
 export const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-
   try {
-    // 1) User શોધો
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid email" });
+    if (!user) {
+      return res.status(400).json({ message: "User not exists" });
+    }
 
-    // 2) Password verify
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid password" });
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid Password" });
+    }
 
-    // 3) JWT બનાવો
-    const token = jwt.sign(
-      { userId: user._id, email: user.email },
-      process.env.JWT_SECRET || "secretKey",
-      { expiresIn: "1h" }
-    );
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
 
-    // 4) Prepare response
-    const loginResponse = {
-      message: "Login successful",
-      token,
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "Lax",
+      maxAge: 1 * 24 * 60 * 60 * 1000,
+    });
+
+    res.status(200).json({
+      message: "Login Successful",
+      accessToken,
       user: {
         id: user._id,
-        username: user.username,
-        email: user.email
+        name: user.name,
+        email: user.email,
+        mobile: user.mobile,
       }
-    };
+    });
 
-    // 5) Send data to n8n webhook
-    axios.post(
-      N8N_WEBHOOK,
-      loginResponse,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "x-n8n-secret": N8N_SECRET
-        },
-        timeout: 2000
-      }
-    ).catch(err => console.error("n8n webhook failed:", err.message));
-
-    // 6) Client response
-    res.json(loginResponse);
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error.", error });
   }
 };

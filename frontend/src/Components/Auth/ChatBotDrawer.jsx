@@ -2,51 +2,53 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
 /**
- * 🧠 ChatBotDrawer Component
- * Fully customizable chatbot widget supporting:
- * - Custom avatar
- * - Theme color
- * - Dynamic welcome message
- * - Smooth auto-scroll
- * - Per-user chat persistence (userId)
+ * 🧠 ChatBotDrawer Component (LIVE CUSTOMIZABLE)
  */
-
 export default function ChatBotDrawer({
   userId,
-  apiBase = "http://localhost:5000",
+  apiBase = "http://localhost:4000",   // ⚡ FIXED PORT
   primaryColor = "#2563eb",
   avatar = "/bot1.png",
   firstMessage = "Hi there 👋 How can I assist you today?",
+  alignment = "right",
   onClose,
 }) {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
   const chatRef = useRef(null);
 
-  // ✅ Scroll chat to bottom whenever new messages are added
+  // =======================================================
+  // ⭐ 1) LIVE UPDATE FIX — Use props directly (No local state)
+  // =======================================================
+
+  // Add welcome message when props.firstMessage changes
+  useEffect(() => {
+    setMessages([{ from: "bot", text: firstMessage }]);
+  }, [firstMessage, avatar, primaryColor]);
+
+  // Scroll to bottom when messages update
   useEffect(() => {
     if (chatRef.current) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }
   }, [messages]);
 
-  // ✅ Add the first welcome message once
-  useEffect(() => {
-    setMessages([{ from: "bot", text: firstMessage }]);
-  }, [firstMessage]);
-
-  // ✅ Send a message to backend
+  // =======================================================
+  // ⭐ 2) Send Message
+  // =======================================================
   const sendMessage = async () => {
     if (!input.trim()) return;
 
     const userMsg = { from: "user", text: input };
     setMessages((prev) => [...prev, userMsg]);
+    const userInput = input;
     setInput("");
 
     try {
-      const res = await axios.post(`${apiBase}/api/chat`, {
+      const res = await axios.post(`${apiBase}/api/chatbot/chat`, {
+
         userId,
-        question: input,
+        question: userInput,
       });
 
       const botMsg = {
@@ -64,7 +66,6 @@ export default function ChatBotDrawer({
     }
   };
 
-  // ✅ Handle Enter key for sending messages
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -72,12 +73,15 @@ export default function ChatBotDrawer({
     }
   };
 
+  // =======================================================
+  // ⭐ 3) UI with LIVE Props
+  // =======================================================
   return (
     <div
       style={{
         position: "fixed",
         bottom: 20,
-        right: 20,
+        [alignment]: 20, // ⭐ dynamic left / right alignment
         width: 370,
         height: 540,
         borderRadius: 16,
@@ -90,7 +94,7 @@ export default function ChatBotDrawer({
         zIndex: 9999,
       }}
     >
-      {/* ✅ Chat Header */}
+      {/* Header */}
       <div
         style={{
           padding: "12px 16px",
@@ -129,7 +133,7 @@ export default function ChatBotDrawer({
         </button>
       </div>
 
-      {/* ✅ Chat Messages */}
+      {/* Messages */}
       <div
         ref={chatRef}
         style={{
@@ -184,7 +188,7 @@ export default function ChatBotDrawer({
         ))}
       </div>
 
-      {/* ✅ Chat Input */}
+      {/* Input */}
       <div
         style={{
           display: "flex",

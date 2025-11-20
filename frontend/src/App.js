@@ -2,112 +2,181 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-// ✅ Components
+// Components
 import Login from "./Components/Auth/Login";
 import Register from "./Components/Auth/Register";
 import UserDetails from "./Components/Auth/UserDetails";
 import Header from "./Layout/Header";
-// import Footer from "./Layout/Footer";
 import Home from "./Layout/Home";
 import DataDisplay from "./Layout/DataDisplay";
 import CustomChatPage from "./Layout/CustomChatPage";
 import EmbedCodePage from "./Layout/EmbedCodePage";
 import EmbedChatbotFrame from "./Layout/EmbedChatbotFrame";
+import AddWebsiteForm from "./Layout/AddWebsiteForm";
+
 
 import "./Layout/Home.css";
 import "./App.css";
 
 function App() {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // ✅ Fetch logged-in user details once on load
+  // Detect embed mode
+  const isEmbedMode = window.location.pathname.startsWith("/embed/chat/");
+
+  // Protect all routes
+  const ProtectedRoute = ({ children }) => {
+    if (!user) return <Navigate to="/login" replace />;
+    return children;
+  };
+
+  // Fetch user on refresh
   useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem("accessToken");
-      if (!token) return;
+    const token = localStorage.getItem("accessToken");
+    const savedUser = localStorage.getItem("user");
 
+    if (savedUser) {
       try {
-        const res = await axios.get("http://localhost:5678/api/auth/getUserDetails", {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        });
-        setUser(res.data);
-      } catch (error) {
-        console.log("User not logged in or token expired");
-        localStorage.removeItem("accessToken");
-        setUser(null);
-      }
-    };
+        setUser(JSON.parse(savedUser));
+      } catch { }
+    }
 
-    fetchUser();
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    let decoded = null;
+    try {
+      decoded = JSON.parse(atob(token.split(".")[1]));
+    } catch {
+      localStorage.removeItem("accessToken");
+      setLoading(false);
+      return;
+    }
+
+    const userId = decoded.userId || decoded.id || decoded._id;
+
+    if (!userId) {
+      localStorage.removeItem("accessToken");
+      setLoading(false);
+      return;
+    }
+
+    axios
+      .get(`http://localhost:4000/api/auth/getUserDetails/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        setUser(res.data);
+        localStorage.setItem("user", JSON.stringify(res.data));
+        setLoading(false);
+      })
+      .catch(async (err) => {
+        if (err.response?.status === 401) {
+          try {
+            const refresh = await axios.get("http://localhost:4000/api/auth/refresh", {
+              withCredentials: true,
+            });
+
+            const newToken = refresh.data.accessToken;
+            localStorage.setItem("accessToken", newToken);
+
+            const retry = await axios.get(
+              `http://localhost:4000/api/auth/getUserDetails/${userId}`,
+              { headers: { Authorization: `Bearer ${newToken}` } }
+            );
+
+            setUser(retry.data);
+            localStorage.setItem("user", JSON.stringify(retry.data));
+          } catch {
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("user");
+            setUser(null);
+          }
+        }
+        setLoading(false);
+      });
   }, []);
+
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", paddingTop: "50px", fontSize: "22px" }}>
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <Router>
-      {/* ✅ Navbar/Header */}
-      <Header user={user} setUser={setUser} />
+      {!isEmbedMode && <Header user={user} setUser={setUser} />}
 
-      <main className="main-content">
+      <main className={isEmbedMode ? "" : "main-content"}>
         <Routes>
-          {/* 🏠 Home */}
+
+          {/* HOME PAGE (PUBLIC) */}
           <Route path="/" element={<Home user={user} />} />
 
-          {/* 🔐 Auth Routes */}
+          {/* ADD WEBSITE PAGE (PROTECTED) */}
           <Route
-            path="/login"
-            element={user ? <Navigate to="/" /> : <Login setUser={setUser} />}
-          />
-          <Route
-            path="/register"
-            element={user ? <Navigate to="/" /> : <Register />}
-          />
-
-          {/* 👤 Protected User Dashboard */}
-          <Route
-            path="/userDetails"
+            path="/add-website"
             element={
-              user ? (
-                <UserDetails user={user} setUser={setUser} />
-              ) : (
-                <Navigate to="/login" />
-              )
+              <ProtectedRoute>
+                <AddWebsiteForm user={user} />
+              </ProtectedRoute>
             }
           />
 
-          {/* 🧠 Chatbot Customization (User-specific) */}
+          {/* LOGIN */}
+          <Route
+            path="/login"
+            element={!user ? <Login setUser={setUser} /> : <Navigate to="/add-website" replace />}
+          />
+
+          {/* REGISTER */}
+          <Route
+            path="/register"
+            element={!user ? <Register /> : <Navigate to="/add-website" replace />}
+          />
+
+          {/* PROTECTED ROUTES */}
+          <Route
+            path="/userDetails/:userId"
+            element={
+              <ProtectedRoute>
+                <UserDetails user={user} />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="/custom-chat/:userId"
             element={
-              user ? (
+              <ProtectedRoute>
                 <CustomChatPage user={user} />
-              ) : (
-                <Navigate to="/login" />
-              )
+              </ProtectedRoute>
             }
           />
 
-          {/* 📜 Embed Code Page */}
           <Route
             path="/embed-code/:userId"
             element={
-              user ? (
+              <ProtectedRoute>
                 <EmbedCodePage user={user} />
-              ) : (
-                <Navigate to="/login" />
-              )
+              </ProtectedRoute>
             }
           />
 
-          {/* 💬 Chatbot Embed Frame — used inside iframe by script */}
+          {/* PUBLIC EMBED MODE */}
           <Route path="/embed/chat/:userId" element={<EmbedChatbotFrame />} />
+
         </Routes>
 
-        {/* Optional Data Display Component */}
-        <DataDisplay />
-      </main>
 
-      {/* Optional Footer */}
-      {/* <Footer /> */}
+
+        {!isEmbedMode && <DataDisplay />}
+      </main>
     </Router>
   );
 }

@@ -18,42 +18,27 @@ const Login = ({ setUser }) => {
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(
-        "https://admin-chatbot-backend.vercel.app/api/auth/login",
-        data,
-        { withCredentials: true }
+        "http://localhost:4000/api/auth/login",
+        data
       );
 
       if (response.status === 200) {
+        const { accessToken, user } = response.data;
+
+        // Store everything in localStorage
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("user", JSON.stringify(user));
+
+        setUser(user);
         alert("Login successful!");
-        const { accessToken } = response.data;
-
-        if (accessToken) {
-          localStorage.setItem("accessToken", accessToken);
-
-          // Fetch user details immediately after login
-          const userRes = await axios.get(
-            "https://admin-chatbot-backend.vercel.app/api/auth/getUserDetails",
-            {
-              headers: { Authorization: `Bearer ${accessToken}` },
-              withCredentials: true,
-            }
-          );
-
-          setUser(userRes.data); // update App.js state
-          navigate("/");         // redirect to home
-        } else {
-          console.log("Token not received");
-        }
+        navigate("/add-website");
       }
     } catch (error) {
       console.error("Login error:", error);
-      if (error.response) {
-        alert(error.response.data.message || "Login failed");
-      } else {
-        alert("An unexpected error occurred. Please try again.");
-      }
+      alert(error.response?.data?.message || "Login failed");
     }
   };
+
 
   return (
     <div className={styles.authContainer}>

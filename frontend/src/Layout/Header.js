@@ -6,9 +6,27 @@ function Header({ user, setUser }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken"); // Clear token
-    setUser(null);                           // Clear App.js state
-    navigate("/login");                       // Redirect to login page
+    localStorage.removeItem("accessToken");
+    setUser(null);
+    navigate("/login");
+  };
+
+  // 🔥 Go to User Details Page with Safe ID Fallback
+  const goToProfile = () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    // Handle all possible ID formats
+    const uid = user._id || user.id || user.userId;
+
+    if (!uid) {
+      navigate("/login");
+      return;
+    }
+
+    navigate(`/userDetails/${uid}`);
   };
 
   return (
@@ -22,16 +40,26 @@ function Header({ user, setUser }) {
           <div className="user-info">
             <FaUserCircle
               size={24}
-              style={{ verticalAlign: "middle", marginRight: "5px", cursor: "pointer" }}
+              style={{ 
+                verticalAlign: "middle", 
+                marginRight: "5px", 
+                cursor: "pointer" 
+              }}
               title="View Profile"
-              onClick={() => navigate("/userDetails")}
+              onClick={goToProfile}
             />
+
             <span
-              style={{ marginRight: "15px", cursor: "pointer", fontWeight: "500" }}
-              onClick={() => navigate("/userDetails")}
+              style={{ 
+                marginRight: "15px", 
+                cursor: "pointer", 
+                fontWeight: "500" 
+              }}
+              onClick={goToProfile}
             >
               {user.name}
             </span>
+
             <button className="logout-btn" onClick={handleLogout}>
               Logout
             </button>

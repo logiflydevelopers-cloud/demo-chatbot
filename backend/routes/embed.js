@@ -1,40 +1,42 @@
 import express from "express";
+import ChatbotSetting from "../models/ChatbotSetting.js";
+
 const router = express.Router();
 
-/**
- * ✅ This route generates a dynamic JS file for embedding the chatbot
- * Example: http://localhost:5678/embed/USER_ID.js
- */
-router.get("/:userId.js", (req, res) => {
+router.get("/:userId.js", async (req, res) => {
   const { userId } = req.params;
 
-  // (Later you can fetch these from DB)
-  const settings = {
-    primaryColor: "#2563eb",
-    alignment: "right",
-  };
+  // Fetch alignment from DB
+  const setting = await ChatbotSetting.findOne({ userId });
+  const alignment = setting?.alignment === "left" ? "left" : "right";
 
-  // ✅ Embed script that injects chatbot iframe
+  // IMPORTANT: Dynamic Backend + Frontend BASE URLs
+  const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+  const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:4000";
+
   const script = `
-  (function() {
-    console.log("✅ Chatbot script loaded for user: ${userId}");
+    (function () {
 
-    if (document.getElementById("chatbot-iframe-${userId}")) return;
+      if (document.getElementById("chatbot-iframe-${userId}")) return;
 
-    const iframe = document.createElement("iframe");
-    iframe.id = "chatbot-iframe-${userId}";
-    iframe.src = "http://localhost:3000/embed/chat/${userId}";
-    iframe.style.position = "fixed";
-    iframe.style.bottom = "20px";
-    iframe.style.${settings.alignment} = "20px";
-    iframe.style.width = "420px";
-    iframe.style.height = "520px";
-    iframe.style.border = "none";
-    iframe.style.borderRadius = "12px";
-    iframe.style.boxShadow = "0 4px 16px rgba(0,0,0,0.25)";
-    iframe.style.zIndex = "999999";
-    document.body.appendChild(iframe);
-  })();
+      // Pass backend URL to iframe
+      window.CHATBOT_API_BASE = "${BACKEND_URL}";
+
+      const iframe = document.createElement("iframe");
+      iframe.id = "chatbot-iframe-${userId}";
+      iframe.src = "${FRONTEND_URL}/embed/chat/${userId}";
+      iframe.style.position = "fixed";
+      iframe.style.bottom = "20px";
+      iframe.style.${alignment} = "20px";
+      iframe.style.width = "380px";
+      iframe.style.height = "600px";
+      iframe.style.border = "none";
+      iframe.style.borderRadius = "12px";
+      iframe.style.zIndex = "999999";
+
+      document.body.appendChild(iframe);
+
+    })();
   `;
 
   res.setHeader("Content-Type", "application/javascript");

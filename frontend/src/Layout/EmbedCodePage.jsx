@@ -1,12 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-const EmbedCodePage = () => {
+const EmbedCodePage = ({ user }) => {
   const { userId } = useParams();
   const navigate = useNavigate();
 
-  // ✅ Use localhost link for now
-  const embedCode = `<script src="http://localhost:5678/embed/${userId}.js" async></script>`;
+  // 🔐 Prevent access without login
+  useEffect(() => {
+    if (!user) navigate("/login");
+  }, [user, navigate]);
+
+  // ✅ Correct API base (your chatbot backend is on port 5000)
+  const embedCode = `<script src="http://localhost:4000/embed/${userId}.js" async></script>`;
 
   const copyCode = () => {
     navigator.clipboard.writeText(embedCode);
@@ -15,6 +20,7 @@ const EmbedCodePage = () => {
 
   return (
     <div style={{ padding: "40px", textAlign: "center", background: "#fff", height: "100vh" }}>
+      
       {/* Header */}
       <div
         style={{
@@ -56,6 +62,7 @@ const EmbedCodePage = () => {
           margin: "20px auto",
           borderRadius: "10px",
           border: "1px solid #ddd",
+          overflowX: "auto"
         }}
       >
         {embedCode}

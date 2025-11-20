@@ -31,7 +31,6 @@ const AddWebsiteForm = ({ user, onWebsiteAdded }) => {
         url: websiteURL,
       });
 
-      // ✅ Save uploaded website in localStorage (for chatbot preview background)
       localStorage.setItem("uploadedWebsite", websiteURL);
 
       setMessage("✅ Website added successfully!");
@@ -48,20 +47,26 @@ const AddWebsiteForm = ({ user, onWebsiteAdded }) => {
     }
   };
 
-  // ✅ Navigate to the user's chatbot customization page
+  // ✅ FIXED — Chatbot Open (user._id → fallback added)
   const openChatbot = () => {
-    if (!user?._id) {
+    console.log("openChatbot user:", user);
+
+    // 🔥 safe fallback → backend कही કોઈપણ id આપે તો પણ चलेगा
+    const uid = user?._id || user?.id || user?.userId;
+
+    if (!uid) {
       alert("Please log in first.");
       return;
     }
-    navigate(`/custom-chat/${user._id}`); // ✅ Dynamic user-based route
+
+    navigate(`/custom-chat/${uid}`);
   };
 
   return (
     <div className={styles.formContainer}>
       <h2>Add a Website</h2>
 
-      {/* ✅ Upload Form */}
+      {/* Upload Form */}
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.inputGroup}>
           <label>Website Name</label>
@@ -88,10 +93,8 @@ const AddWebsiteForm = ({ user, onWebsiteAdded }) => {
         </button>
       </form>
 
-      {/* ✅ Display Status Message */}
       {message && <p className={styles.message}>{message}</p>}
 
-      {/* ✅ Show Chatbot Button & Response Data */}
       {data.length > 0 && (
         <div
           style={{
@@ -102,7 +105,7 @@ const AddWebsiteForm = ({ user, onWebsiteAdded }) => {
             boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
           }}
         >
-          {/* ✅ Chatbot Button */}
+          {/* Chatbot Button */}
           <div style={{ textAlign: "center", marginBottom: "20px" }}>
             <button
               onClick={openChatbot}
@@ -125,7 +128,7 @@ const AddWebsiteForm = ({ user, onWebsiteAdded }) => {
             </button>
           </div>
 
-          {/* ✅ Response Data Section */}
+          {/* Response Data */}
           <div>
             <h3
               style={{

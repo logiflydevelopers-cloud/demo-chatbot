@@ -33,8 +33,5 @@
     "workbox-google-analytics": "^7.3.0",
     "xml2js": "^0.6.2"
   },
-  "keywords": [],
-  "devDependencies": {
-    "@rollup/plugin-terser": "^0.4.4"
-  }
+  "keywords": []
 }

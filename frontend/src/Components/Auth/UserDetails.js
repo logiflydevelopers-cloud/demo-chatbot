@@ -1,88 +1,105 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import styles from "./Auth.module.css";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const UserDetails = ({ user, setUser }) => {
   const navigate = useNavigate();
+  const { userId } = useParams(); // 🔥 Read user ID from URL
 
+  const [loading, setLoading] = useState(true);
+
+  // Fetch specific user details by ID
   const fetchUserDetails = async (token) => {
     return await axios.get(
-      "https://admin-chatbot-backend.vercel.app/api/auth/getUserDetails",
+      `http://localhost:4000/api/auth/getUserDetails/${userId}`,
       {
-        withCredentials: true,
         headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       }
     );
   };
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) {
+    const loadUser = async () => {
+      const token = localStorage.getItem("accessToken");
+
+      if (!token) {
         navigate("/login");
         return;
       }
 
       try {
-        const res = await fetchUserDetails(accessToken);
-        setUser(res.data); // update App.js state
+        const res = await fetchUserDetails(token);
+        setUser(res.data); // Update in App.js
+        setLoading(false);
       } catch (error) {
         const status = error?.response?.status;
+
         if (status === 401 || status === 403) {
           try {
-            console.log("Access Token Expired");
+            console.log("Access token expired. Refreshing...");
             const refreshRes = await axios.get(
-              "https://admin-chatbot-backend.vercel.app/api/auth/refresh",
+              "http://localhost:4000/api/auth/refresh",
               { withCredentials: true }
             );
+
             const newAccessToken = refreshRes.data.accessToken;
             localStorage.setItem("accessToken", newAccessToken);
+
             const retryRes = await fetchUserDetails(newAccessToken);
-            setUser(retryRes.data); // update App.js state
+            setUser(retryRes.data);
+
           } catch (refreshError) {
             console.log("Refresh token expired");
             localStorage.clear();
-            setUser(null);  // clear App.js state
+            setUser(null);
             navigate("/login");
           }
         }
       }
+
+      setLoading(false);
     };
 
-    fetchUser();
-  }, [navigate, setUser]);
+    loadUser();
+  }, [navigate, userId, setUser]);
 
   const handleLogout = async () => {
     try {
       await axios.post(
-        "https://admin-chatbot-backend.vercel.app/api/auth/logout",
+        "http://localhost:4000/api/auth/logout",
         {},
         { withCredentials: true }
       );
+
       localStorage.removeItem("accessToken");
-      setUser(null);      // clear App.js state
+      setUser(null);
       navigate("/login");
+
     } catch (error) {
       console.error("Logout failed:", error);
       alert("Logout failed. Please try again.");
     }
   };
 
-  if (!user) return <p>Loading user info...</p>;
+  if (loading || !user) return <p>Loading user info...</p>;
 
   return (
     <div className={styles.authContainer}>
       <div className={styles.authForm}>
         <h2 className={styles.authTitle}>User Details</h2>
+
         <p>
-          <strong>Name:</strong> {user.name}
+          <strong>Name:</strong> {user.name || "Not provided"}
         </p>
+
         <p>
           <strong>Email:</strong> {user.email}
         </p>
+
         <p>
-          <strong>Mobile:</strong> {user.mobile}
+          <strong>Mobile:</strong> {user.mobile || "Not provided"}
         </p>
 
         <button onClick={handleLogout} className={styles.submitButton}>

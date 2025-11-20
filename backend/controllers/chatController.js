@@ -8,7 +8,6 @@ export const chatWithBot = async (req, res) => {
       return res.status(400).json({ error: "Missing userId or question" });
     }
 
-    // Fetch user’s pages from MongoDB
     const pages = await Page.find({ userId });
     const context = pages.map((p) => p.url).join("\n");
 

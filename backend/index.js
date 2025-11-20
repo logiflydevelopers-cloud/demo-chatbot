@@ -4,42 +4,54 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js";
 
-// ✅ Import all routes
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/UserRoutes.js";
-import chatRoutes from "./routes/chatRoutes.js";
 import webhookRoutes from "./routes/webhook.js";
-import embedRoutes from "./routes/embed"; // ✅ this one must be here
+import chatbotRoutes from "./routes/chatbotRoutes.js";
+import embedRoutes from "./routes/embed.js";
+import proxyRoute from "./routes/proxy.js";
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5678;
+const PORT = process.env.PORT || 4000;
 
-// ✅ Middlewares
-app.use(cors({ origin: "*", credentials: true }));
-app.use(express.json());
-app.use(cookieParser());
+// ⭐ UNIVERSAL CORS — ALLOW ALL WEBSITES
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
-// ✅ Allow iframe embedding
 app.use((req, res, next) => {
-  res.setHeader("X-Frame-Options", "ALLOWALL");
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "*");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
   next();
 });
 
-// ✅ Connect database (if needed)
+app.use(express.json());
+app.use(cookieParser());
+
+// Allow iframe embedding
+app.use((req, res, next) => {
+  res.setHeader("X-Frame-Options", "ALLOWALL");
+  next();
+});
+
 connectDB();
 
-// ✅ Basic route
-app.get("/", (req, res) => res.send("✅ Chatbot Backend running..."));
+app.get("/", (req, res) => res.send("Chatbot Backend running"));
 
-// ✅ Register routes
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
-app.use("/api/chat", chatRoutes);
 app.use("/api/webhook", webhookRoutes);
-app.use("/embed", embedRoutes); // ✅ VERY IMPORTANT
+app.use("/api/chatbot", chatbotRoutes);
+app.use("/embed", embedRoutes);
+app.use("/proxy", proxyRoute);
 
-// ✅ Start server
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on port ${PORT}`)
+);
