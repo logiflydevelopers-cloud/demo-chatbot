@@ -21,7 +21,7 @@ const CustomChatPage = ({ user }) => {
   const [selectedWebsite, setSelectedWebsite] = useState(null);
 
   const [showChat, setShowChat] = useState(true);
-  const apiBase = "http://localhost:4000";
+  const apiBase = "https://demo-chatbot-backend.vercel.app/";
 
   // Load saved settings on mount (DB) + localStorage fallback for uploadedWebsite
   useEffect(() => {
@@ -175,7 +175,7 @@ const CustomChatPage = ({ user }) => {
       <div style={{ flex: 1, position: "relative", marginTop: "50px" }}>
         {selectedWebsite ? (
           <iframe
-            src={`http://localhost:4000/proxy?url=${encodeURIComponent(selectedWebsite)}`}
+            src={`https://demo-chatbot-backend.vercel.app/proxy?url=${encodeURIComponent(selectedWebsite)}`}
             title="Website Preview"
             style={{ width: "100%", height: "100%", border: "none", position: "absolute", top: 0, left: 0 }}
             sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
