@@ -16,7 +16,7 @@ import DashboardLayout from "./Layout/DashboardLayout";
 // Dashboard Subpages
 import AIPersona from "./Layout/dashboard-pages/AIPersona";
 import Knowledge from "./Layout/dashboard-pages/KnowledgeBase";
-// import Teach from "./Layout/dashboard-pages/TeachAgent";
+import TeachAgent from "./Layout/dashboard-pages/TeachAgent";
 import Welcome from "./Layout/dashboard-pages/Welcome";
 import AddWebsiteForm from "./Layout/dashboard-pages/AddWebsiteForm";
 import FileUpload from "./Layout/dashboard-pages/FileUpload";
@@ -254,6 +254,9 @@ function App() {
             <Route path="knowledge" element={<Knowledge />} />
             <Route path="knowledge/file" element={<FileUpload />} />
             <Route path="add-website" element={<AddWebsiteForm user={user} />} />
+
+            {/* FIXED TEACH ROUTE */}
+            <Route path="teach" element={<TeachAgent user={user} />} />
 
             {/* Q&A */}
             <Route path="knowledge/qa" element={<QAPage />} />
