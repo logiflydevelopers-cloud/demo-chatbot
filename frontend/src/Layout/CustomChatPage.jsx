@@ -12,71 +12,44 @@ const CustomChatPage = ({ user }) => {
   const [firstMessage, setFirstMessage] = useState("Hi there 👋 I'm your assistant!");
   const [primaryColor, setPrimaryColor] = useState("#2563eb");
   const [alignment, setAlignment] = useState("right");
+
   const [selectedWebsite, setSelectedWebsite] = useState(null);
 
+  // ⭐ PREVIEW CONTROL
   const [showChat, setShowChat] = useState(true);
+  const [showBubble, setShowBubble] = useState(false);
+  const [isCustomizerMode] = useState(true);
 
+  /* Redirect if not logged in */
   useEffect(() => {
     if (!user) navigate("/login");
   }, [user, navigate]);
 
-  useEffect(() => {
-    const hasPDF = localStorage.getItem("hasPDF");
-    const hasQA = localStorage.getItem("hasQA");
-    const uploaded = localStorage.getItem("uploadedWebsite");
-
-    if (!hasPDF && !hasQA && !uploaded) {
-      alert("⚠️ Please upload FILE, WEBSITE, or Q&A first.");
-      navigate("/dashboard/knowledge");
-    }
-  }, [navigate]);
-
-  /* ==========================================================
-        ⭐ LOAD ALL CUSTOMIZATION + WEBSITE (correct priority)
-        Priority:
-        1. DB (Strong Source)
-        2. LocalStorage chatbot_settings
-        3. uploadedWebsite fallback
-  =========================================================== */
+  /* Load settings */
   useEffect(() => {
     const fetchSettings = async () => {
-      let websiteDB = null;
-
       try {
         const res = await axios.get(`${apiBase}/api/chatbot/${userId}`);
 
         if (res.data.success && res.data.settings) {
           const s = res.data.settings;
-          if (s.avatar) setAvatar(s.avatar);
-          if (s.firstMessage) setFirstMessage(s.firstMessage);
-          if (s.primaryColor) setPrimaryColor(s.primaryColor);
-          if (s.alignment) setAlignment(s.alignment);
 
-          websiteDB = s.website || null;
+          setAvatar(s.avatar || "/avatars/avatar1.png");
+          setFirstMessage(s.firstMessage || "Hi there 👋 I'm your assistant!");
+          setPrimaryColor(s.primaryColor || "#2563eb");
+          setAlignment(s.alignment || "right");
+
+          if (s.website) setSelectedWebsite(s.website);
         }
       } catch (error) {
         console.warn("DB load error →", error.message);
       }
-
-      let websiteLS = null;
-      const ls = localStorage.getItem("chatbot_settings");
-      if (ls) {
-        const s = JSON.parse(ls);
-        websiteLS = s.website || null;
-      }
-
-      const uploaded = localStorage.getItem("uploadedWebsite") || null;
-
-      // FINAL priority
-      setSelectedWebsite(websiteDB || websiteLS || uploaded || null);
     };
 
     fetchSettings();
   }, [userId]);
 
-  /* ==========================================================
-        ⭐ SAVE CUSTOMIZATION
-  =========================================================== */
+  /* Save Customization */
   const saveCustomization = async () => {
     try {
       const payload = {
@@ -93,17 +66,18 @@ const CustomChatPage = ({ user }) => {
       if (res.data.success) {
         alert("Customization Saved Successfully!");
         localStorage.setItem("chatbot_settings", JSON.stringify(payload));
+        localStorage.setItem("chatbotSaved", "true");
       } else {
         alert("Save failed");
       }
     } catch (error) {
-      console.error("Save error:", error);
-      alert("Save failed");
+      alert("Save Failed");
     }
   };
 
   return (
     <div style={{ display: "flex", height: "100vh", width: "100%", overflow: "hidden" }}>
+      
       {/* SAVE BUTTON */}
       <div
         style={{
@@ -130,7 +104,7 @@ const CustomChatPage = ({ user }) => {
         </button>
       </div>
 
-      {/* LEFT SETTINGS */}
+      {/* LEFT SIDE SETTINGS */}
       <div
         style={{
           width: "300px",
@@ -206,33 +180,42 @@ const CustomChatPage = ({ user }) => {
           <option value="right">Right</option>
           <option value="left">Left</option>
         </select>
-
-        {/* SHOW ONLY IF WEBSITE EXISTS */}
-        {selectedWebsite ? (
-          <div style={{ marginTop: 18 }}>
-            <label style={{ fontWeight: 500 }}>Selected Website</label>
-            <input
-              type="text"
-              readOnly
-              value={selectedWebsite}
-              style={{
-                width: "100%",
-                padding: 10,
-                borderRadius: 6,
-                border: "1px solid #ccc",
-                marginTop: 6,
-              }}
-            />
-          </div>
-        ) : (
-          <p style={{ marginTop: 18, color: "red", fontWeight: 600 }}>
-            ⚠️ No website selected
-          </p>
-        )}
       </div>
 
-      {/* CHAT PREVIEW */}
+      {/* CHAT PREVIEW (RIGHT SIDE) */}
       <div style={{ flex: 1, position: "relative", marginTop: "50px" }}>
+
+        {/* FLOATING BUBBLE (after close) */}
+        {showBubble && (
+          <div
+            onClick={() => {
+              setShowBubble(false);
+              setShowChat(true);
+            }}
+            style={{
+              position: "fixed",
+              bottom: "30px",
+              right: alignment === "right" ? "30px" : "unset",
+              left: alignment === "left" ? "30px" : "unset",
+              width: "70px",
+              height: "70px",
+              borderRadius: "50%",
+              background: primaryColor,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              color: "#fff",
+              fontSize: "35px",
+              cursor: "pointer",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+              zIndex: 99999,
+            }}
+          >
+            💬
+          </div>
+        )}
+
+        {/* CHATBOT WINDOW */}
         {showChat && (
           <ChatBotDrawer
             key={primaryColor + avatar + firstMessage + alignment}
@@ -242,7 +225,11 @@ const CustomChatPage = ({ user }) => {
             avatar={avatar}
             firstMessage={firstMessage}
             alignment={alignment}
-            onClose={() => setShowChat(false)}
+            isCustomizerMode={isCustomizerMode}
+            onClose={() => {
+              setShowChat(false);
+              setShowBubble(true);
+            }}
           />
         )}
       </div>

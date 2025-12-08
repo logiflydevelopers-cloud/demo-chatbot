@@ -13,7 +13,7 @@ const AddWebsite = ({ user }) => {
   const [storedDomain, setStoredDomain] = useState("");
 
   /* =====================================================
-        ⭐ LOAD SAVED URL ON REFRESH
+        ⭐ LOAD STORED WEBSITE ON REFRESH
   ===================================================== */
   useEffect(() => {
     const saved = localStorage.getItem("uploadedWebsite");
@@ -24,7 +24,7 @@ const AddWebsite = ({ user }) => {
   }, []);
 
   /* =====================================================
-        ⭐ CRAWL WEBSITE (BACKEND + n8n)
+        ⭐ CRAWL + SAVE WEBSITE
   ===================================================== */
   const handleCrawl = async () => {
     setError("");
@@ -53,18 +53,14 @@ const AddWebsite = ({ user }) => {
       const websiteURL = url.trim();
       const domainName = new URL(websiteURL).hostname;
 
-      /* -------------------------
-        1) SAVE IN BACKEND
-      ------------------------- */
+      /* 1️⃣ — SAVE WEBSITE PAGES IN BACKEND */
       await axios.post("http://localhost:4000/api/webhook/add-custom-website", {
         userId,
         url: websiteURL,
         name: domainName,
       });
 
-      /* -------------------------
-        2) SEND TO n8n (NO CORS)
-      ------------------------- */
+      /* 2️⃣ — SEND WEBSITE TO N8N WORKFLOW */
       await axios.post(
         "http://localhost:5678/webhook-test/add-custom-website",
         {
@@ -74,20 +70,15 @@ const AddWebsite = ({ user }) => {
         { withCredentials: false }
       );
 
-      /* -------------------------
-        3) UPDATE ChatbotSettings WEBSITE
-      ------------------------- */
+      /* 3️⃣ — UPDATE Chatbot Settings (website field only) */
       await axios.post("http://localhost:4000/api/chatbot/save", {
         userId,
         website: websiteURL,
       });
 
-      /* -------------------------
-        4) SAVE IN LOCAL STORAGE
-      ------------------------- */
+      /* 4️⃣ — SAVE IN LOCAL STORAGE */
       localStorage.setItem("uploadedWebsite", websiteURL);
 
-      // also update chatbot_settings local cache
       const ls = localStorage.getItem("chatbot_settings");
       if (ls) {
         const updated = { ...JSON.parse(ls), website: websiteURL };
@@ -105,7 +96,7 @@ const AddWebsite = ({ user }) => {
   };
 
   /* =====================================================
-        ⭐ REMOVE WEBSITE (BACKEND + LOCAL + SETTINGS)
+        ⭐ REMOVE WEBSITE (DB + LOCAL)
   ===================================================== */
   const removeWebsite = async () => {
     if (!storedDomain) {
@@ -118,7 +109,7 @@ const AddWebsite = ({ user }) => {
     if (!window.confirm("Are you sure you want to remove this website?")) return;
 
     try {
-      // Remove from backend (pages)
+      /* 1️⃣ — DELETE WEBSITE PAGES FROM BACKEND */
       await axios.delete("http://localhost:4000/api/webhook/remove-website", {
         data: {
           userId,
@@ -126,13 +117,13 @@ const AddWebsite = ({ user }) => {
         },
       });
 
-      // Remove from ChatbotSettings
+      /* 2️⃣ — REMOVE FROM Chatbot Setting DB */
       await axios.post("http://localhost:4000/api/chatbot/save", {
         userId,
         website: null,
       });
 
-      // Clear localStorage
+      /* 3️⃣ — CLEAR LOCAL STORAGE */
       localStorage.removeItem("uploadedWebsite");
 
       const ls = localStorage.getItem("chatbot_settings");
@@ -177,7 +168,6 @@ const AddWebsite = ({ user }) => {
           onChange={(e) => setUrl(e.target.value)}
         />
 
-        {/* REMOVE BUTTON */}
         {storedDomain && (
           <button className="remove-url-btn" onClick={removeWebsite}>
             ❌ Remove Website
@@ -190,15 +180,9 @@ const AddWebsite = ({ user }) => {
         <p className="help-text">Agent will automatically recrawl.</p>
 
         <div className="radio-row">
-          <label>
-            <input type="radio" name="freq" /> Daily
-          </label>
-          <label>
-            <input type="radio" name="freq" /> Weekly
-          </label>
-          <label>
-            <input type="radio" name="freq" defaultChecked /> Monthly
-          </label>
+          <label><input type="radio" name="freq" /> Daily</label>
+          <label><input type="radio" name="freq" /> Weekly</label>
+          <label><input type="radio" name="freq" defaultChecked /> Monthly</label>
         </div>
 
         <button className="crawl-btn" onClick={handleCrawl} disabled={loading}>

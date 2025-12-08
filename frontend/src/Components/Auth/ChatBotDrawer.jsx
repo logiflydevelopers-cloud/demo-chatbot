@@ -9,6 +9,7 @@ export default function ChatBotDrawer({
   firstMessage: defaultMsg = "Hi there 👋 How can I help you?",
   alignment: defaultAlign = "right",
   onClose = () => {},
+  isCustomizerMode = false,
 }) {
   const [primaryColor, setPrimaryColor] = useState(defaultColor);
   const [avatar, setAvatar] = useState(defaultAvatar);
@@ -20,9 +21,7 @@ export default function ChatBotDrawer({
   const [suggestions, setSuggestions] = useState([]);
   const chatRef = useRef(null);
 
-  /* ------------------------------------------------------
-      1️⃣ LOAD SETTINGS FROM BACKEND (Embed + Customize)
-  -------------------------------------------------------*/
+  /* LOAD SETTINGS */
   useEffect(() => {
     const loadSettings = async () => {
       try {
@@ -35,11 +34,10 @@ export default function ChatBotDrawer({
           setFirstMessage(s.firstMessage || defaultMsg);
           setAlignment(s.alignment || defaultAlign);
         }
-      } catch {
-        console.log("Settings load failed → using localStorage fallback");
+      } catch (error) {
+        console.log("Settings load failed");
       }
 
-      // Local fallback
       const stored = localStorage.getItem("chatbot_settings");
       if (stored) {
         const s = JSON.parse(stored);
@@ -51,79 +49,55 @@ export default function ChatBotDrawer({
     };
 
     loadSettings();
-  }, [userId]);
+  }, [apiBase, userId, defaultColor, defaultAvatar, defaultMsg, defaultAlign]);
 
-  /* ------------------------------------------------------
-      2️⃣ SHOW FIRST MESSAGE
-  -------------------------------------------------------*/
+  /* FIRST MESSAGE */
   useEffect(() => {
     setMessages([{ from: "bot", text: firstMessage }]);
   }, [firstMessage]);
 
-  /* ------------------------------------------------------
-      3️⃣ LOAD Q&A Suggestions
-  -------------------------------------------------------*/
+  /* LOAD QA */
   useEffect(() => {
-    const loadQA = async () => {
-      try {
-        const res = await axios.get(`${apiBase}/api/qa/user/${userId}`);
-        setSuggestions(res.data || []);
-      } catch (err) {
-        console.log("Error loading Q&A:", err);
-      }
-    };
-    loadQA();
-  }, [userId]);
+    axios
+      .get(`${apiBase}/api/qa/user/${userId}`)
+      .then((res) => setSuggestions(res.data || []))
+      .catch(() => {});
+  }, [apiBase, userId]);
 
-  /* ------------------------------------------------------
-      4️⃣ AUTO SCROLL
-  -------------------------------------------------------*/
+  /* AUTO SCROLL */
   useEffect(() => {
     if (chatRef.current) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }
   }, [messages]);
 
-  /* ------------------------------------------------------
-      5️⃣ SEND MESSAGE
-  -------------------------------------------------------*/
+  /* SEND MESSAGE */
   const sendMessage = async () => {
     if (!input.trim()) return;
 
-    const userText = input;
+    const text = input;
     setInput("");
 
-    setMessages((prev) => [...prev, { from: "user", text: userText }]);
+    setMessages((prev) => [...prev, { from: "user", text }]);
 
     try {
-      const res = await axios.post(
-        `${apiBase}/api/chatbot/chat`,
-        { userId, question: userText },
-        { withCredentials: true }
-      );
+      const res = await axios.post(`${apiBase}/api/chatbot/chat`, {
+        userId,
+        question: text,
+      });
 
-      const botReply =
-        res.data?.answer || "🤖 Sorry, I don't have an answer right now.";
-
-      setMessages((prev) => [...prev, { from: "bot", text: botReply }]);
-    } catch (err) {
       setMessages((prev) => [
         ...prev,
-        { from: "bot", text: "⚠️ Server error. Please try later." },
+        { from: "bot", text: res.data.answer || "Sorry, I don't know." },
+      ]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { from: "bot", text: "⚠️ Server error. Try later." },
       ]);
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
-  /* ------------------------------------------------------
-      6️⃣ CHAT UI (Same for Embed & Customize)
-  -------------------------------------------------------*/
   return (
     <div
       style={{
@@ -141,7 +115,7 @@ export default function ChatBotDrawer({
         zIndex: 99999,
       }}
     >
-      {/* Header */}
+      {/* HEADER */}
       <div
         style={{
           padding: "12px 16px",
@@ -155,7 +129,7 @@ export default function ChatBotDrawer({
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <img
             src={avatar}
-            alt="chatbot-avatar"
+            alt="chatbot avatar"
             style={{
               width: 38,
               height: 38,
@@ -175,12 +149,13 @@ export default function ChatBotDrawer({
             fontSize: 18,
             cursor: "pointer",
           }}
+          aria-label="close chatbot"
         >
           ✖
         </button>
       </div>
 
-      {/* Quick Replies */}
+      {/* QUICK SUGGESTIONS */}
       <div
         style={{
           padding: 10,
@@ -193,36 +168,36 @@ export default function ChatBotDrawer({
           overflowY: "auto",
         }}
       >
-        {suggestions.length === 0 && (
-          <p style={{ fontSize: 12, color: "#777" }}>No Q&A added yet</p>
+        {suggestions.length === 0 ? (
+          <p style={{ fontSize: 12, color: "#777" }}>No suggestions</p>
+        ) : (
+          suggestions.map((qa, index) => (
+            <button
+              key={index}
+              onClick={() =>
+                setMessages((prev) => [
+                  ...prev,
+                  { from: "user", text: qa.question },
+                  { from: "bot", text: qa.answer },
+                ])
+              }
+              style={{
+                background: primaryColor,
+                color: "#fff",
+                border: "none",
+                padding: "6px 12px",
+                borderRadius: 6,
+                cursor: "pointer",
+                fontSize: 13,
+              }}
+            >
+              {qa.question}
+            </button>
+          ))
         )}
-
-        {suggestions.map((qa, index) => (
-          <button
-            key={index}
-            onClick={() =>
-              setMessages((prev) => [
-                ...prev,
-                { from: "user", text: qa.question },
-                { from: "bot", text: qa.answer },
-              ])
-            }
-            style={{
-              background: primaryColor,
-              color: "#fff",
-              border: "none",
-              padding: "6px 12px",
-              borderRadius: 6,
-              cursor: "pointer",
-              fontSize: 13,
-            }}
-          >
-            {qa.question}
-          </button>
-        ))}
       </div>
 
-      {/* Messages */}
+      {/* MESSAGES */}
       <div
         ref={chatRef}
         style={{
@@ -244,7 +219,7 @@ export default function ChatBotDrawer({
             {m.from === "bot" && (
               <img
                 src={avatar}
-                alt="bot-avatar"
+                alt="bot avatar"
                 style={{
                   width: 28,
                   height: 28,
@@ -259,10 +234,7 @@ export default function ChatBotDrawer({
                 background: m.from === "user" ? primaryColor : "#e2e8f0",
                 color: m.from === "user" ? "#fff" : "#111",
                 padding: "10px 14px",
-                borderRadius:
-                  m.from === "user"
-                    ? "14px 14px 2px 14px"
-                    : "14px 14px 14px 2px",
+                borderRadius: 14,
                 maxWidth: "75%",
                 fontSize: 14,
               }}
@@ -273,7 +245,7 @@ export default function ChatBotDrawer({
         ))}
       </div>
 
-      {/* Input */}
+      {/* INPUT */}
       <div
         style={{
           padding: 8,
@@ -285,7 +257,7 @@ export default function ChatBotDrawer({
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           placeholder="Type message..."
           style={{
             flex: 1,

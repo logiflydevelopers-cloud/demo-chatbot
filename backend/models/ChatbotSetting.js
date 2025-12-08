@@ -2,12 +2,12 @@ import mongoose from "mongoose";
 
 const settingsSchema = new mongoose.Schema(
   {
-    userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+    userId: { type: String, required: true }, // ⭐ FIXED
     avatar: String,
     firstMessage: String,
     primaryColor: String,
     alignment: String,
-    website: { type: String, default: null },
+    website: { type: String, default: null }, // ⭐ Website optional
   },
   { timestamps: true }
 );
