@@ -3,7 +3,7 @@ import axios from "axios";
 
 export default function ChatBotDrawer({
   userId,
-  apiBase = "http://localhost:4000",
+  apiBase = "https://backend-demo-chatbot.vercel.app",
   primaryColor: defaultColor = "#2563eb",
   avatar: defaultAvatar = "/avatars/avatar1.png",
   firstMessage: defaultMsg = "Hi there 👋 How can I help you?",

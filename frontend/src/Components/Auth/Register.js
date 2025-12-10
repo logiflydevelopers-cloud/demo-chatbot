@@ -20,7 +20,7 @@ const Register = () => {
     try {
       console.log('Registration form submitted', data);
 
-      const response = await axios.post("http://localhost:4000/api/auth/register", data, {
+      const response = await axios.post("https://backend-demo-chatbot.vercel.app/api/auth/register", data, {
         withCredentials: true
       });
 

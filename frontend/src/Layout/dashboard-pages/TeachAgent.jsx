@@ -39,7 +39,7 @@ const TeachAgentChat = ({ user }) => {
     setTyping(true);
 
     try {
-      const res = await axios.post("http://localhost:4000/api/chatbot/chat", {
+      const res = await axios.post("https://backend-demo-chatbot.vercel.app/api/chatbot/chat", {
         userId: user?._id,
         message: userMsg,
       });

@@ -25,7 +25,7 @@ const PORT = process.env.PORT || 4000;
 ====================================================== */
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "https://frontend-demo-chatbot.vercel.app",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -34,7 +34,7 @@ app.use(
 
 // Handle OPTIONS preflight globally
 app.options("*", cors({
-  origin: "http://localhost:3000",
+  origin: "https://frontend-demo-chatbot.vercel.app",
   credentials: true,
 }));
 

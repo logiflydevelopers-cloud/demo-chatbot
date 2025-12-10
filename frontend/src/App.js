@@ -85,7 +85,7 @@ function App() {
     }
 
     axios
-      .get(`http://localhost:4000/api/auth/getUserDetails/${userId}`, {
+      .get(`https://backend-demo-chatbot.vercel.app/api/auth/getUserDetails/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -96,7 +96,7 @@ function App() {
       .catch(async (err) => {
         if (err.response?.status === 401) {
           try {
-            const refresh = await axios.get("http://localhost:4000/api/auth/refresh", {
+            const refresh = await axios.get("https://backend-demo-chatbot.vercel.app/api/auth/refresh", {
               withCredentials: true,
             });
 
@@ -104,7 +104,7 @@ function App() {
             localStorage.setItem("accessToken", newToken);
 
             const retry = await axios.get(
-              `http://localhost:4000/api/auth/getUserDetails/${userId}`,
+              `https://backend-demo-chatbot.vercel.app/api/auth/getUserDetails/${userId}`,
               { headers: { Authorization: `Bearer ${newToken}` } }
             );
 
