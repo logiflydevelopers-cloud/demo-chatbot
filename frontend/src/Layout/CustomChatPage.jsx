@@ -3,19 +3,25 @@ import axios from "axios";
 import ChatBotDrawer from "../Components/Auth/ChatBotDrawer";
 import { useParams, useNavigate } from "react-router-dom";
 
+// ⭐ IMPORT AVATARS FROM src/image
+import Ellipse90 from "../../image/Ellipse 90.png";
+import Ellipse91 from "../../image/Ellipse 91.png";
+import Ellipse92 from "../../image/Ellipse 92.png";
+import Ellipse93 from "../../image/Ellipse 93.png";
+
 const CustomChatPage = ({ user }) => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const apiBase = "https://backend-demo-chatbot.vercel.app";
 
-  const [avatar, setAvatar] = useState("/avatars/avatar1.png");
+  // ⭐ DEFAULT AVATAR FROM src/image
+  const [avatar, setAvatar] = useState(Ellipse90);
   const [firstMessage, setFirstMessage] = useState("Hi there 👋 I'm your assistant!");
   const [primaryColor, setPrimaryColor] = useState("#2563eb");
   const [alignment, setAlignment] = useState("right");
 
   const [selectedWebsite, setSelectedWebsite] = useState(null);
 
-  // ⭐ PREVIEW CONTROL
   const [showChat, setShowChat] = useState(true);
   const [showBubble, setShowBubble] = useState(false);
   const [isCustomizerMode] = useState(true);
@@ -25,7 +31,7 @@ const CustomChatPage = ({ user }) => {
     if (!user) navigate("/login");
   }, [user, navigate]);
 
-  /* Load settings */
+  /* Load Chatbot Settings */
   useEffect(() => {
     const fetchSettings = async () => {
       try {
@@ -34,7 +40,14 @@ const CustomChatPage = ({ user }) => {
         if (res.data.success && res.data.settings) {
           const s = res.data.settings;
 
-          setAvatar(s.avatar || "/avatars/avatar1.png");
+          // ⭐ SETTINGS MAY STORE URL, BUT WE USE IMPORTED IMAGES
+          setAvatar(
+            s.avatar === "Ellipse91" ? Ellipse91 :
+            s.avatar === "Ellipse92" ? Ellipse92 :
+            s.avatar === "Ellipse93" ? Ellipse93 :
+            Ellipse90
+          );
+
           setFirstMessage(s.firstMessage || "Hi there 👋 I'm your assistant!");
           setPrimaryColor(s.primaryColor || "#2563eb");
           setAlignment(s.alignment || "right");
@@ -49,12 +62,43 @@ const CustomChatPage = ({ user }) => {
     fetchSettings();
   }, [userId]);
 
-  /* Save Customization */
+  /* CHECK IF USER HAS TRAINING DATA */
+  useEffect(() => {
+    const checkTrainingData = async () => {
+      try {
+        const [pdfRes, linkRes, qaRes] = await Promise.all([
+          axios.get(`${apiBase}/api/page/pdf/${userId}`),
+          axios.get(`${apiBase}/api/page/link/${userId}`),
+          axios.get(`${apiBase}/api/qa/user/${userId}`),
+        ]);
+
+        const hasPDF = pdfRes.data?.length > 0;
+        const hasLinks = linkRes.data?.length > 0;
+        const hasQA = qaRes.data?.length > 0;
+
+        if (!hasPDF && !hasLinks && !hasQA) {
+          alert("⚠ Please upload FILE, LINK or add Q&A first.");
+          navigate("/dashboard/train");
+        }
+      } catch (err) {
+        console.log("Training data check failed →", err.message);
+      }
+    };
+
+    checkTrainingData();
+  }, [userId, navigate]);
+
+  /* SAVE CUSTOMIZATION */
   const saveCustomization = async () => {
     try {
       const payload = {
         userId,
-        avatar,
+        avatar:
+          avatar === Ellipse91 ? "Ellipse91" :
+          avatar === Ellipse92 ? "Ellipse92" :
+          avatar === Ellipse93 ? "Ellipse93" :
+          "Ellipse90", // default
+
         firstMessage,
         primaryColor,
         alignment,
@@ -75,9 +119,12 @@ const CustomChatPage = ({ user }) => {
     }
   };
 
+  /* ⭐ ONLY THESE 4 AVATARS WILL BE SHOWN */
+  const avatarOptions = [Ellipse90, Ellipse91, Ellipse92, Ellipse93];
+
   return (
     <div style={{ display: "flex", height: "100vh", width: "100%", overflow: "hidden" }}>
-      
+
       {/* SAVE BUTTON */}
       <div
         style={{
@@ -104,7 +151,7 @@ const CustomChatPage = ({ user }) => {
         </button>
       </div>
 
-      {/* LEFT SIDE SETTINGS */}
+      {/* LEFT CUSTOMIZATION PANEL */}
       <div
         style={{
           width: "300px",
@@ -120,13 +167,7 @@ const CustomChatPage = ({ user }) => {
 
         <label>Choose Avatar</label>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 20 }}>
-          {[
-            "/avatars/avatar1.png",
-            "/avatars/avatar2.png",
-            "/avatars/avatar3.png",
-            "/avatars/avatar4.png",
-            "/avatars/avatar5.png",
-          ].map((img) => (
+          {avatarOptions.map((img) => (
             <img
               key={img}
               src={img}
@@ -139,6 +180,7 @@ const CustomChatPage = ({ user }) => {
                 border: avatar === img ? "3px solid #2563eb" : "2px solid #ccc",
                 padding: "3px",
                 cursor: "pointer",
+                objectFit: "cover",
               }}
             />
           ))}
@@ -182,10 +224,9 @@ const CustomChatPage = ({ user }) => {
         </select>
       </div>
 
-      {/* CHAT PREVIEW (RIGHT SIDE) */}
+      {/* CHAT PREVIEW */}
       <div style={{ flex: 1, position: "relative", marginTop: "50px" }}>
 
-        {/* FLOATING BUBBLE (after close) */}
         {showBubble && (
           <div
             onClick={() => {
@@ -215,7 +256,6 @@ const CustomChatPage = ({ user }) => {
           </div>
         )}
 
-        {/* CHATBOT WINDOW */}
         {showChat && (
           <ChatBotDrawer
             key={primaryColor + avatar + firstMessage + alignment}
