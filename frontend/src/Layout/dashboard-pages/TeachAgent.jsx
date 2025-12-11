@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "./TeachAgent.css";
 
+// FIXED IMPORTS (NO SPACES)
 import Ellipse90 from "../image/Ellipse90.png";
 import Ellipse91 from "../image/Ellipse91.png";
 import Ellipse92 from "../image/Ellipse92.png";
@@ -31,7 +32,6 @@ const TeachAgentChat = ({ user }) => {
     }
   };
 
-  // Load Chatbot Drawer Settings
   useEffect(() => {
     const load = async () => {
       try {
@@ -39,14 +39,12 @@ const TeachAgentChat = ({ user }) => {
 
         if (res.data.success && res.data.settings) {
           const s = res.data.settings;
-
           setAvatar(mapAvatar(s.avatar));
           setPrimaryColor(s.primaryColor);
           setFirstMessage(s.firstMessage);
         }
-      } catch (e) {}
+      } catch {}
 
-      // LOCAL STORAGE FALLBACK
       const stored = localStorage.getItem("chatbot_settings");
       if (stored) {
         const s = JSON.parse(stored);
@@ -59,12 +57,10 @@ const TeachAgentChat = ({ user }) => {
     load();
   }, [user]);
 
-  // First message
   useEffect(() => {
     setMessages([{ sender: "bot", text: firstMessage }]);
   }, [firstMessage]);
 
-  // Auto scroll
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -87,7 +83,7 @@ const TeachAgentChat = ({ user }) => {
         ...prev,
         { sender: "bot", text: res.data.answer || "Sorry, I don't know." },
       ]);
-    } catch (err) {
+    } catch {
       setMessages((prev) => [
         ...prev,
         { sender: "bot", text: "⚠ Something went wrong." },
@@ -100,13 +96,11 @@ const TeachAgentChat = ({ user }) => {
   return (
     <div className="ta-container">
 
-      {/* HEADER SAME AS CHATBOTDRAWER */}
       <div className="ta-header" style={{ background: primaryColor }}>
         <img src={avatar} className="ta-header-avatar" alt="bot" />
         <span>Your AI Agent</span>
       </div>
 
-      {/* BODY */}
       <div className="ta-body">
 
         {messages.map((m, i) => (
@@ -141,7 +135,6 @@ const TeachAgentChat = ({ user }) => {
         <div ref={bottomRef} />
       </div>
 
-      {/* INPUT */}
       <div className="ta-input-box">
         <input
           value={input}
