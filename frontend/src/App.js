@@ -6,6 +6,8 @@ import axios from "axios";
 import Login from "./Components/Auth/Login";
 import Register from "./Components/Auth/Register";
 import UserDetails from "./Components/Auth/UserDetails";
+import ForgotPassword from "./Components/Auth/ForgotPassword";   // ⭐ NEW
+import ResetPassword from "./Components/Auth/ResetPassword";     // ⭐ NEW
 
 // Layout
 import Header from "./Layout/Header";
@@ -74,7 +76,6 @@ function App() {
     }
 
     const userId = decoded.userId || decoded.id || decoded._id;
-
     if (!userId) {
       localStorage.removeItem("accessToken");
       setLoading(false);
@@ -90,7 +91,7 @@ function App() {
         localStorage.setItem("user", JSON.stringify(res.data));
         setLoading(false);
       })
-      .catch(async () => {
+      .catch(() => {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("user");
         setUser(null);
@@ -124,6 +125,7 @@ function App() {
 
       <main className={isEmbedMode ? "" : "main-content"}>
         <Routes>
+
           <Route path="/" element={<Home user={user} />} />
 
           {/* LOGIN */}
@@ -137,6 +139,12 @@ function App() {
             path="/register"
             element={!user ? <Register /> : <Navigate to={`/dashboard/${user?._id}/train`} />}
           />
+
+          {/* ⭐ FORGOT PASSWORD */}
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+
+          {/* ⭐ RESET PASSWORD */}
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           {/* USER DETAILS */}
           <Route
@@ -171,7 +179,7 @@ function App() {
           {/* PUBLIC EMBED CHAT */}
           <Route path="/embed/chat/:userId" element={<ChatBotDrawerEmbed />} />
 
-          {/* DASHBOARD ROUTES WITH USERID */}
+          {/* DASHBOARD ROUTES */}
           <Route
             path="/dashboard/:userId"
             element={
@@ -181,7 +189,6 @@ function App() {
             }
           >
             <Route index element={<Navigate to="train" replace />} />
-
             <Route path="train" element={<Welcome />} />
 
             <Route
@@ -215,7 +222,6 @@ function App() {
             <Route path="knowledge/file" element={<FileUpload />} />
             <Route path="add-website" element={<AddWebsiteForm user={user} />} />
             <Route path="teach" element={<TeachAgent user={user} />} />
-
             <Route path="knowledge/qa" element={<QAPage />} />
             <Route path="knowledge/qa/new" element={<EditQA />} />
             <Route path="knowledge/qa/edit/:id" element={<EditQA />} />

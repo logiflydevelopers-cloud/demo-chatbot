@@ -69,9 +69,11 @@ const Login = ({ setUser }) => {
         <button type="submit" className={styles.submitButton}>Login</button>
 
         <p className={styles.toggleText}>
-          Don't have an account?{" "}
-          <Link to="/register" className={styles.toggleLink}>Register</Link>
+          <Link to="/forgot-password" className={styles.toggleLink}>
+            Forgot Password?
+          </Link>
         </p>
+
       </form>
     </div>
   );
