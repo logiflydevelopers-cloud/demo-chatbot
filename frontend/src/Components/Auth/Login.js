@@ -1,16 +1,18 @@
 import { useForm } from "react-hook-form";
 import styles from "./Auth.module.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
 const Login = ({ setUser }) => {
-  const navigate = useNavigate();
-
+  
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({ mode: "onBlur", reValidateMode: "onBlur" });
+  } = useForm({
+    mode: "onBlur",
+    reValidateMode: "onBlur",
+  });
 
   const onSubmit = async (data) => {
     try {
@@ -23,15 +25,15 @@ const Login = ({ setUser }) => {
       if (response.status === 200) {
         const { accessToken, user } = response.data;
 
-        // Save user + token
+        // Save to localStorage
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("user", JSON.stringify(user));
 
-        // Set user globally
+        // Update header state in App.js
         setUser(user);
 
-        // ⭐ FIXED REDIRECT: always include userId in URL
-        navigate(`/dashboard/${user._id}/train`);
+        // ⭐ Perfect fix: force App.js to reload once
+        window.location.href = "/dashboard/train";
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -49,7 +51,9 @@ const Login = ({ setUser }) => {
           <input
             type="email"
             className={styles.input}
-            {...register("email", { required: "Email is required" })}
+            {...register("email", {
+              required: "Email is required",
+            })}
           />
           {errors.email && <div className={styles.error}>{errors.email.message}</div>}
         </div>
@@ -59,21 +63,19 @@ const Login = ({ setUser }) => {
           <input
             type="password"
             className={styles.input}
-            {...register("password", { required: "Password is required" })}
+            {...register("password", {
+              required: "Password is required",
+            })}
           />
-          {errors.password && (
-            <div className={styles.error}>{errors.password.message}</div>
-          )}
+          {errors.password && <div className={styles.error}>{errors.password.message}</div>}
         </div>
 
         <button type="submit" className={styles.submitButton}>Login</button>
 
         <p className={styles.toggleText}>
-          <Link to="/forgot-password" className={styles.toggleLink}>
-            Forgot Password?
-          </Link>
+          Don't have an account? {" "}
+          <Link to="/register" className={styles.toggleLink}>Register</Link>
         </p>
-
       </form>
     </div>
   );

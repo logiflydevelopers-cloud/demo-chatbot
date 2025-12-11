@@ -7,34 +7,51 @@ function Header({ user, setUser }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const userId = user?._id;
+  const userId = user?.id || user?._id || user?.userId;
 
   const goDashboard = () => {
-    navigate(`/dashboard/${userId}/train`);
+    navigate("/dashboard/train");
   };
 
   const handleLogout = () => {
-    localStorage.clear();
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("uploadedWebsite");
+    localStorage.removeItem("hasPDF");
+    localStorage.removeItem("hasQA");
+    localStorage.removeItem("chatbotSaved");
+
     setUser(null);
     navigate("/login");
   };
 
   const goProfile = () => {
+    if (!userId) {
+      alert("User ID missing");
+      return;
+    }
     navigate(`/userDetails/${userId}`);
   };
 
+  /* ---------------------------------------------------
+     ⭐ CUSTOMIZE PROTECTION (FILE / LINK / Q&A ANY ONE)
+  ----------------------------------------------------*/
   const handleCustomizeClick = () => {
-    if (
-      !localStorage.getItem("hasPDF") &&
-      !localStorage.getItem("hasQA") &&
-      !localStorage.getItem("uploadedWebsite")
-    ) {
+    const hasPDF = localStorage.getItem("hasPDF");
+    const hasQA = localStorage.getItem("hasQA");
+    const hasWebsite = localStorage.getItem("uploadedWebsite");
+
+    if (!hasPDF && !hasQA && !hasWebsite) {
       alert("⚠️ Please upload FILE, LINK or add Q&A first.");
       return;
     }
+
     navigate(`/custom-chat/${userId}`);
   };
 
+
+  /* ---------------------------------------------------
+     ⭐ PUBLISH PROTECTION
+  ----------------------------------------------------*/
   const handlePublishClick = () => {
     if (!localStorage.getItem("chatbotSaved")) {
       alert("⚠️ Please customize and SAVE your chatbot before publishing.");
@@ -45,6 +62,7 @@ function Header({ user, setUser }) {
 
   return (
     <>
+      {/* HEADER */}
       <header className="jf-header">
         <div className="jf-left" onClick={goDashboard}>
           <img src={logo} className="jf-logo" alt="logo" />
@@ -63,25 +81,32 @@ function Header({ user, setUser }) {
         </button>
       </header>
 
-      {/* BLUE TABS */}
+      {/* TOP BLUE TABS */}
       <div className="jf-bluebar">
+
+        {/* TRAIN */}
         <Link
-          to={`/dashboard/${userId}/train`}
-          className={`jf-tab ${location.pathname.includes("/train") ? "active" : ""}`}
+          to="/dashboard/train"
+          className={`jf-tab ${location.pathname.includes("/train") ? "active" : ""
+            }`}
         >
           TRAIN
         </Link>
 
+        {/* CUSTOMIZE */}
         <div
           onClick={handleCustomizeClick}
-          className={`jf-tab ${location.pathname.includes("/custom-chat") ? "active" : ""}`}
+          className={`jf-tab ${location.pathname.includes("/custom-chat") ? "active" : ""
+            }`}
         >
           CUSTOMIZE
         </div>
 
+        {/* PUBLISH */}
         <div
           onClick={handlePublishClick}
-          className={`jf-tab ${location.pathname.includes("/embed-code") ? "active" : ""}`}
+          className={`jf-tab ${location.pathname.includes("/embed-code") ? "active" : ""
+            }`}
         >
           PUBLISH
         </div>
