@@ -4,7 +4,7 @@ import ChatBotDrawer from "../Components/Auth/ChatBotDrawer";
 import { useParams, useNavigate } from "react-router-dom";
 
 // ⭐ IMPORT AVATARS FROM src/image
-import Ellipse90 from "../image/Ellipse90";
+import Ellipse90 from "../image/logo.png";
 import Ellipse91 from "../image/Ellipse 91.png";
 import Ellipse92 from "../image/Ellipse 92.png";
 import Ellipse93 from "../image/Ellipse 93.png";
