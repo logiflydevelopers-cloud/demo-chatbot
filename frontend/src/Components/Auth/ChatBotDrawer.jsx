@@ -19,6 +19,7 @@ export default function ChatBotDrawer({
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
+  const [isTyping, setIsTyping] = useState(false); // ⭐ NEW
   const chatRef = useRef(null);
 
   /* LOAD SETTINGS */
@@ -69,7 +70,7 @@ export default function ChatBotDrawer({
     if (chatRef.current) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, isTyping]);
 
   /* SEND MESSAGE */
   const sendMessage = async () => {
@@ -80,23 +81,57 @@ export default function ChatBotDrawer({
 
     setMessages((prev) => [...prev, { from: "user", text }]);
 
+    // ⭐ START TYPING ANIMATION
+    setIsTyping(true);
+
     try {
       const res = await axios.post(`${apiBase}/api/chatbot/chat`, {
         userId,
         question: text,
       });
 
+      // ⭐ STOP TYPING WHEN ANSWER ARRIVES
+      setIsTyping(false);
+
       setMessages((prev) => [
         ...prev,
         { from: "bot", text: res.data.answer || "Sorry, I don't know." },
       ]);
     } catch {
+      setIsTyping(false);
       setMessages((prev) => [
         ...prev,
         { from: "bot", text: "⚠️ Server error. Try later." },
       ]);
     }
   };
+
+  /* TYPING DOT STYLE */
+  const typingStyle = {
+    display: "flex",
+    gap: "6px",
+    background: "#e2e8f0",
+    padding: "10px 14px",
+    borderRadius: 14,
+    width: "fit-content",
+    margin: "6px 0",
+  };
+
+  const dotStyle = `
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-5px); }
+    }
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: #475569;
+      border-radius: 50%;
+      animation: typingBounce 1s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  `;
 
   return (
     <div
@@ -115,6 +150,8 @@ export default function ChatBotDrawer({
         zIndex: 99999,
       }}
     >
+      <style>{dotStyle}</style>
+
       {/* HEADER */}
       <div
         style={{
@@ -149,13 +186,12 @@ export default function ChatBotDrawer({
             fontSize: 18,
             cursor: "pointer",
           }}
-          aria-label="close chatbot"
         >
           ✖
         </button>
       </div>
 
-      {/* QUICK SUGGESTIONS */}
+      {/* SUGGESTIONS */}
       <div
         style={{
           padding: 10,
@@ -171,9 +207,9 @@ export default function ChatBotDrawer({
         {suggestions.length === 0 ? (
           <p style={{ fontSize: 12, color: "#777" }}>No suggestions</p>
         ) : (
-          suggestions.map((qa, index) => (
+          suggestions.map((qa, idx) => (
             <button
-              key={index}
+              key={idx}
               onClick={() =>
                 setMessages((prev) => [
                   ...prev,
@@ -243,6 +279,15 @@ export default function ChatBotDrawer({
             </div>
           </div>
         ))}
+
+        {/* ⭐ TYPING ANIMATION HERE */}
+        {isTyping && (
+          <div style={typingStyle}>
+            <span className="typing-dot"></span>
+            <span className="typing-dot"></span>
+            <span className="typing-dot"></span>
+          </div>
+        )}
       </div>
 
       {/* INPUT */}

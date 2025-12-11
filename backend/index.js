@@ -11,21 +11,18 @@ import chatbotRoutes from "./routes/chatbotRoutes.js";
 import embedRoutes from "./routes/embed.js";
 import proxyRoute from "./routes/proxy.js";
 import qaRoutes from "./routes/qaRoutes.js";
-import fileRoutes from "./routes/fileRoutes.js";
+
+
+
 
 dotenv.config();
 
 const app = express();
-
-/* ----------------------------
-   ⭐ Detect Local vs Vercel
------------------------------ */
-const isVercel = Boolean(process.env.VERCEL);  // <-- Vercel auto sets this
 const PORT = process.env.PORT || 4000;
 
-/* ----------------------------
-      CORS SETTINGS
------------------------------ */
+/* ======================================================
+   ⭐ SINGLE PERFECT CORS (DO NOT ADD ANY OTHER CORS)
+====================================================== */
 app.use(
   cors({
     origin: "https://frontend-demo-chatbot.vercel.app",
@@ -35,10 +32,15 @@ app.use(
   })
 );
 
+// Handle OPTIONS preflight globally
 app.options("*", cors({
   origin: "https://frontend-demo-chatbot.vercel.app",
   credentials: true,
 }));
+
+/* ======================================================
+              CORS FIX COMPLETED ✔
+====================================================== */
 
 app.use(express.json());
 app.use(cookieParser());
@@ -51,9 +53,6 @@ app.use((req, res, next) => {
 
 connectDB();
 
-/* ----------------------------
-         ROUTES
------------------------------ */
 app.get("/", (req, res) => res.send("Chatbot Backend running"));
 
 app.use("/api/auth", authRoutes);
@@ -63,17 +62,8 @@ app.use("/api/chatbot", chatbotRoutes);
 app.use("/embed", embedRoutes);
 app.use("/proxy", proxyRoute);
 app.use("/api/qa", qaRoutes);
-app.use("/file", fileRoutes);
 
-/* ----------------------------
- ⭐ LOCAL ONLY → Start Server
- ⭐ VERCEL → Do NOT Start Server
------------------------------ */
-if (!process.env.VERCEL) {
-  app.listen(PORT, () =>
-    console.log(`🚀 Local Server running on port ${PORT}`)
-  );
-}
 
-export default app;
-
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on port ${PORT}`)
+);
