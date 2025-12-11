@@ -13,11 +13,6 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   },
-  mobile: {
-    type: String,
-    required: true,
-    match: /^[0-9]{10}$/,
-  },
   password: {
     type: String,
     required: true,

@@ -103,10 +103,6 @@ const UserDetails = ({ user, setUser }) => {
           <strong>Email:</strong> {user.email}
         </p>
 
-        <p>
-          <strong>Mobile:</strong> {user.mobile || "Not provided"}
-        </p>
-
         <button onClick={handleLogout} className={styles.submitButton}>
           Logout
         </button>
