@@ -3,8 +3,8 @@ import axios from "axios";
 import ChatBotDrawer from "../Components/Auth/ChatBotDrawer";
 import { useParams, useNavigate } from "react-router-dom";
 
-// ⭐ IMPORT AVATARS FROM src/image
-import Ellipse90 from "../image/logo.png";
+// ⭐ IMPORT IMAGES FROM src/image
+import Ellipse90 from "../image/Ellipse 90.png";
 import Ellipse91 from "../image/Ellipse 91.png";
 import Ellipse92 from "../image/Ellipse 92.png";
 import Ellipse93 from "../image/Ellipse 93.png";
@@ -14,7 +14,7 @@ const CustomChatPage = ({ user }) => {
   const navigate = useNavigate();
   const apiBase = "https://backend-demo-chatbot.vercel.app";
 
-  // ⭐ DEFAULT AVATAR FROM src/image
+  // ⭐ DEFAULT AVATAR = Ellipse90
   const [avatar, setAvatar] = useState(Ellipse90);
   const [firstMessage, setFirstMessage] = useState("Hi there 👋 I'm your assistant!");
   const [primaryColor, setPrimaryColor] = useState("#2563eb");
@@ -26,12 +26,12 @@ const CustomChatPage = ({ user }) => {
   const [showBubble, setShowBubble] = useState(false);
   const [isCustomizerMode] = useState(true);
 
-  /* Redirect if not logged in */
+  /* REDIRECT IF NOT LOGGED IN */
   useEffect(() => {
     if (!user) navigate("/login");
   }, [user, navigate]);
 
-  /* Load Chatbot Settings */
+  /* LOAD CHATBOT SETTINGS FROM DATABASE */
   useEffect(() => {
     const fetchSettings = async () => {
       try {
@@ -40,7 +40,7 @@ const CustomChatPage = ({ user }) => {
         if (res.data.success && res.data.settings) {
           const s = res.data.settings;
 
-          // ⭐ SETTINGS MAY STORE URL, BUT WE USE IMPORTED IMAGES
+          // ⭐ Map DB avatar string to imported images
           setAvatar(
             s.avatar === "Ellipse91" ? Ellipse91 :
             s.avatar === "Ellipse92" ? Ellipse92 :
@@ -62,7 +62,7 @@ const CustomChatPage = ({ user }) => {
     fetchSettings();
   }, [userId]);
 
-  /* CHECK IF USER HAS TRAINING DATA */
+  /* CHECK TRAINING DATA */
   useEffect(() => {
     const checkTrainingData = async () => {
       try {
@@ -88,16 +88,18 @@ const CustomChatPage = ({ user }) => {
     checkTrainingData();
   }, [userId, navigate]);
 
-  /* SAVE CUSTOMIZATION */
+  /* SAVE CUSTOMIZATION TO DB */
   const saveCustomization = async () => {
     try {
       const payload = {
         userId,
+
+        // ⭐ convert imported image → DB string
         avatar:
           avatar === Ellipse91 ? "Ellipse91" :
           avatar === Ellipse92 ? "Ellipse92" :
           avatar === Ellipse93 ? "Ellipse93" :
-          "Ellipse90", // default
+          "Ellipse90",
 
         firstMessage,
         primaryColor,
@@ -119,7 +121,7 @@ const CustomChatPage = ({ user }) => {
     }
   };
 
-  /* ⭐ ONLY THESE 4 AVATARS WILL BE SHOWN */
+  /* ⭐ AVATAR OPTIONS */
   const avatarOptions = [Ellipse90, Ellipse91, Ellipse92, Ellipse93];
 
   return (
@@ -151,7 +153,7 @@ const CustomChatPage = ({ user }) => {
         </button>
       </div>
 
-      {/* LEFT CUSTOMIZATION PANEL */}
+      {/* LEFT PANEL */}
       <div
         style={{
           width: "300px",
@@ -165,6 +167,7 @@ const CustomChatPage = ({ user }) => {
       >
         <h3>Customize</h3>
 
+        {/* ⭐ AVATAR SELECT */}
         <label>Choose Avatar</label>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 20 }}>
           {avatarOptions.map((img) => (
@@ -186,6 +189,7 @@ const CustomChatPage = ({ user }) => {
           ))}
         </div>
 
+        {/* ⭐ THEME COLOR */}
         <label>Chat Theme Color</label>
         <input
           type="color"
@@ -194,6 +198,7 @@ const CustomChatPage = ({ user }) => {
           style={{ width: "100%", height: "40px", marginBottom: 15 }}
         />
 
+        {/* ⭐ WELCOME MESSAGE */}
         <label>Welcome Message</label>
         <textarea
           value={firstMessage}
@@ -208,6 +213,7 @@ const CustomChatPage = ({ user }) => {
           }}
         />
 
+        {/* ⭐ CHAT POSITION */}
         <label>Chat Position</label>
         <select
           value={alignment}
@@ -226,7 +232,6 @@ const CustomChatPage = ({ user }) => {
 
       {/* CHAT PREVIEW */}
       <div style={{ flex: 1, position: "relative", marginTop: "50px" }}>
-
         {showBubble && (
           <div
             onClick={() => {
