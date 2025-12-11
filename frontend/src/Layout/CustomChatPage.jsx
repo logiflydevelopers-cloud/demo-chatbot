@@ -7,7 +7,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Ellipse90 from "../image/Ellipse90";
 import Ellipse91 from "../image/Ellipse 91.png";
 import Ellipse92 from "../image/Ellipse 92.png";
-import Ellipse93 from "/../image/Ellipse 93.png";
+import Ellipse93 from "../image/Ellipse 93.png";
 
 const CustomChatPage = ({ user }) => {
   const { userId } = useParams();
