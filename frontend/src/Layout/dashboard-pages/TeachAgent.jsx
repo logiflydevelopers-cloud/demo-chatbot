@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import "./TeachAgentChat.css";
+import "./TeachAgent.css";
 
 import Ellipse90 from "../image/Ellipse 90.png";
 import Ellipse91 from "../image/Ellipse 91.png";
