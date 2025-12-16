@@ -18,7 +18,7 @@ const Register = () => {
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(
-        "http://localhost:4000/api/auth/register",
+        "https://backend-demo-chatbot.vercel.app/api/auth/register",
         data,
         { withCredentials: true }
       );

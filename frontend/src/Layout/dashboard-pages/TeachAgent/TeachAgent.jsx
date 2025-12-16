@@ -4,7 +4,7 @@ import "./TeachAgent.css";
 import BotAvatar from "../../../image/Ellipse 90.png";
 
 const TeachAgent = () => {
-  const apiBase = "http://localhost:4000/teach-agent";
+  const apiBase = "https://backend-demo-chatbot.vercel.app/teach-agent";
 
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");

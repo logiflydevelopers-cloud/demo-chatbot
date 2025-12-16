@@ -5,7 +5,6 @@ const Sidebar = () => {
   return (
     <div className="sidebar">
 
-
       <NavLink to="/dashboard/persona" className="side-item">
         <span>🤖</span> AI PERSONA
       </NavLink>
