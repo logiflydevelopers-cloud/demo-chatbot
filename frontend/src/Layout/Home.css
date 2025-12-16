@@ -74,7 +74,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 18px 0;
+    padding: 18px 24px;
 }
 
 /* LEFT */
@@ -249,6 +249,10 @@ body {
 
     .hamburger {
         display: block;
+    }
+
+    .navbar-inner {
+        padding: 18px 12px;
     }
 }
 
