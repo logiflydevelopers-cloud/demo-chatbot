@@ -71,8 +71,8 @@ const reviews = [
 
 const googleLogin = async () => {
   try {
-    const res = await axios.get("http://localhost:4000/api/auth/google");
-    window.location.href = res.data.url; // 🔥 direct Google login
+    const res = await axios.get("https://backend-demo-chatbot.vercel.app/api/auth/google");
+    window.location.href = res.data.url; 
   } catch (err) {
     console.error("Google login failed", err);
   }
