@@ -24,6 +24,31 @@
 }
 
 /* =========================
+   TRUE SCROLL ANIMATION
+========================= */
+
+.animate {
+    opacity: 0;
+    transform: translateY(60px);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+    will-change: opacity, transform;
+}
+
+.animate.show {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+}
+
+.fade-up { transform: translateY(60px); }
+.fade-left { transform: translateX(-80px); }
+.fade-right { transform: translateX(80px); }
+
+.delay-1 { transition-delay: 0.12s; }
+.delay-2 { transition-delay: 0.25s; }
+.delay-3 { transition-delay: 0.38s; }
+
+
+/* =========================
    RESET + BODY
 ========================= */
 * {
@@ -58,8 +83,8 @@ body {
 @media (max-width: 480px) {
     .container {
         max-width: 355px;
-        padding-left: 16px;
-        padding-right: 16px;
+        padding-left: 10px;
+        padding-right: 10px;
     }
 }
 
@@ -384,11 +409,11 @@ body {
    ANIMATIONS
 ========================= */
 .fade-left {
-    animation: fadeLeft 1s ease forwards;
+    /* animation: fadeLeft 1s ease forwards; */
 }
 
 .fade-right {
-    animation: fadeRight 1s ease forwards;
+    /* animation: fadeRight 1s ease forwards; */
 }
 
 @keyframes fadeLeft {
@@ -496,7 +521,7 @@ body {
    ANIMATION
 ========================= */
 .fade-up {
-    animation: fadeUp 1s ease forwards;
+    /* animation: fadeUp 1s ease forwards; */
 }
 
 @keyframes fadeUp {
@@ -611,11 +636,11 @@ body {
    ANIMATION
 ========================= */
 .fade-left {
-    animation: fadeLeft 1s ease forwards;
+    /* animation: fadeLeft 1s ease forwards; */
 }
 
 .fade-right {
-    animation: fadeRight 1s ease forwards;
+    /* animation: fadeRight 1s ease forwards; */
 }
 
 .fade-up {
@@ -898,7 +923,7 @@ body {
 .avatars img.badge {
     width: 46px;
     height: 46px;
-    margin-left: 8px;
+    margin-left: -12px;
     border: none;
 }
 
@@ -911,7 +936,7 @@ body {
 
 /* SLIDER */
 .testimonial-slider {
-    overflow-x: auto;
+    /* overflow-x: auto; */
     scrollbar-width: none;
 }
 
@@ -1021,12 +1046,53 @@ body {
     }
 
     .testimonial-card {
-        width: 280px;
+        width: 250px;
+        padding: 15px;
+        border-radius: 10px;
     }
 
     .testimonial-track {
         animation-duration: 55s;
+        gap: 20px;
     }
+
+    .stars-row img {
+        width: 14px;
+        height: 14px;
+        object-fit: contain;
+    }
+
+    h4.testimonial-title {
+        font-size: 12px;
+    }
+
+    .testimonial-card h4 {
+        margin: 8px 0;
+    }
+
+    .testimonial-card p {
+        font-size: 12px;
+        opacity: 0.8;
+    }
+
+    .author {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .author img {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+    }
+
+    strong.testimonial-author {
+        font-size: 11px;
+    }
+
+
 }
 
 
@@ -1080,7 +1146,7 @@ body {
 }
 
 .zoom-in {
-    animation: zoomIn 0.9s ease forwards;
+    /* animation: zoomIn 0.9s ease forwards; */
 }
 
 .delay {
@@ -1248,4 +1314,57 @@ body {
         flex-direction: column;
         gap: 10px;
     }
+}
+
+
+
+
+
+
+
+
+
+
+/* =========================
+   TRUE SCROLL ANIMATION
+========================= */
+
+/* initial hidden */
+.animate {
+    opacity: 0;
+    transform: translateY(60px);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+    will-change: opacity, transform;
+}
+
+/* when visible */
+.animate.show {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+}
+
+/* directions */
+.fade-up {
+    transform: translateY(60px);
+}
+
+.fade-left {
+    transform: translateX(-80px);
+}
+
+.fade-right {
+    transform: translateX(80px);
+}
+
+/* subtle delay (optional) */
+.delay-1 {
+    transition-delay: 0.12s;
+}
+
+.delay-2 {
+    transition-delay: 0.25s;
+}
+
+.delay-3 {
+    transition-delay: 0.38s;
 }

@@ -71,7 +71,7 @@ const reviews = [
 
 const googleLogin = async () => {
   try {
-    const res = await axios.get("https://backend-demo-chatbot.vercel.app/api/auth/google");
+    const res = await axios.get("http://localhost:4000/api/auth/google");
     window.location.href = res.data.url; // 🔥 direct Google login
   } catch (err) {
     console.error("Google login failed", err);
@@ -82,6 +82,32 @@ const googleLogin = async () => {
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const elements = document.querySelectorAll(".animate");
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("show");
+            observer.unobserve(entry.target); // 🔥 KEY LINE
+          }
+        });
+      },
+      {
+        threshold: 0.15,
+        rootMargin: "0px 0px -120px 0px",
+      }
+    );
+
+    elements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
+
+
+
 
   return (
     <>
@@ -152,7 +178,7 @@ export default function Home() {
         <div className="container hero-inner">
 
           {/* LEFT CONTENT */}
-          <div className="hero-left fade-left">
+          <div className="animate hero-left fade-left">
             <h1>
               AI Chatbot for <br /> your site
             </h1>
@@ -184,7 +210,7 @@ export default function Home() {
           </div>
 
           {/* RIGHT IMAGE */}
-          <div className="hero-right fade-right">
+          <div className="hero-right animate fade-right delay-1">
             <img
               src={chatUI}
               alt="AI Chat UI"
@@ -198,7 +224,7 @@ export default function Home() {
 
       {/* TRUSTED COMPANIES SECTION */}
       <section className="companies">
-        <div className="container companies-inner fade-up">
+        <div className="container companies-inner animate fade-up">
 
           <p className="companies-text">
             Empowering thousands of companies.{" "}
@@ -229,7 +255,7 @@ export default function Home() {
         <div className="container">
 
           {/* HEADER */}
-          <div className="features-header fade-up">
+          <div className="features-header animate fade-up">
             <h2>
               Key features that <span>power your business</span>
             </h2>
@@ -241,10 +267,10 @@ export default function Home() {
 
           {/* 1 */}
           <div className="feature-row">
-            <div className="feature-media fade-left">
+            <div className="feature-media animate fade-left">
               <img src={integrationsCard} alt="Integrations" />
             </div>
-            <div className="feature-content fade-right">
+            <div className="feature-content animate fade-right delay-1">
               <img src={integrationsRow} className="feature-icons" />
               <h3>Instant setup, no coding required</h3>
               <p>
@@ -256,10 +282,10 @@ export default function Home() {
 
           {/* 2 */}
           <div className="feature-row reverse">
-            <div className="feature-media fade-right">
+            <div className="feature-media animate fade-right">
               <img src={knowledgeImage} alt="Knowledge Base" />
             </div>
-            <div className="feature-content fade-left">
+            <div className="feature-content animate fade-left delay-1">
               <h3>Knowledge Base</h3>
               <p>
                 Train ChatBot with your own content. Add documents and Q&A so
@@ -270,10 +296,10 @@ export default function Home() {
 
           {/* 3 */}
           <div className="feature-row">
-            <div className="feature-media fade-left">
+            <div className="feature-media animate fade-left">
               <img src={customizationImage} alt="Customization Options" />
             </div>
-            <div className="feature-content fade-right">
+            <div className="feature-content animate fade-right delay-1">
               <h3>Customization Options</h3>
               <p>
                 Make ChatBot fit your site. Adjust size, alignment, color and
@@ -284,10 +310,10 @@ export default function Home() {
 
           {/* 4 */}
           <div className="feature-row reverse">
-            <div className="feature-media fade-right">
+            <div className="feature-media animate fade-right">
               <img src={firstMessageImage} alt="First Message" />
             </div>
-            <div className="feature-content fade-left">
+            <div className="feature-content animate fade-left">
               <h3>First Message</h3>
               <p>
                 Decide what your chatbot says first and welcome customers
@@ -298,10 +324,10 @@ export default function Home() {
 
           {/* 5 */}
           <div className="feature-row">
-            <div className="feature-media fade-left">
+            <div className="feature-media animate fade-left">
               <img src={conversationImage} alt="Get conversations" />
             </div>
-            <div className="feature-content fade-right">
+            <div className="feature-content animate fade-right">
               <h3>Get conversations</h3>
               <p>
                 Every conversation is sent to your inbox in real time so you can
@@ -312,10 +338,10 @@ export default function Home() {
 
           {/* 6 */}
           <div className="feature-row reverse">
-            <div className="feature-media fade-right">
+            <div className="feature-media animate fade-right">
               <img src={languageImage} alt="Multi-language support" />
             </div>
-            <div className="feature-content fade-left">
+            <div className="feature-content animate fade-left">
               <h3>Multi-language support</h3>
               <p>
                 ChatBot detects each visitor’s language and answers automatically.
@@ -333,7 +359,7 @@ export default function Home() {
       <section className="why-love">
         <div className="container">
 
-          <div className="why-header">
+          <div className="why-header animate fade-up">
             <h2>Why will love ChatBot</h2>
             <p>
               ChatBot is the easiest way to deliver automated customer support using AI.
@@ -344,28 +370,28 @@ export default function Home() {
 
           <div className="why-list">
 
-            <div className="why-pill left">
+            <div className="why-pill animate fade-left left">
               <div className="why-icon">
                 <img src={iconLaunch} alt="Launch fast" />
               </div>
               <span>Launches in minutes — no code, no training</span>
             </div>
 
-            <div className="why-pill right">
+            <div className="why-pill animate fade-right right">
               <span>Works in every language, on any website</span>
               <div className="why-icon">
                 <img src={iconLanguage} alt="Languages" />
               </div>
             </div>
 
-            <div className="why-pill left">
+            <div className="why-pill animate fade-left left">
               <div className="why-icon">
                 <img src={iconInbox} alt="Inbox" />
               </div>
               <span>Sends conversations directly to your inbox</span>
             </div>
 
-            <div className="why-pill right">
+            <div className="why-pill animate fade-right right">
               <span>100% free until 2026</span>
               <div className="why-icon">
                 <img src={iconFree} alt="Free" />
@@ -385,7 +411,7 @@ export default function Home() {
         <div className="container">
 
           {/* HEADER */}
-          <div className="testimonials-header">
+          <div className="testimonials-header animate fade-up">
             <h2>Join our AI-delighted customers</h2>
 
             <div className="testimonials-meta">
@@ -417,21 +443,21 @@ export default function Home() {
             <div className="testimonial-track">
 
               {[...reviews, ...reviews].map((r, i) => (
-                <div className="testimonial-card" key={i}>
+                <div className="testimonial-card animate fade-up" key={i}>
                   <div className="stars-row">
                     {[...Array(5)].map((_, i) => (
                       <img key={i} src={starIcon} alt="star" />
                     ))}
                   </div>
 
-                  <h4>{r.title}</h4>
-                  <p>{r.text}</p>
+                  <h4 className="testimonial-title">{r.title}</h4>
+                  <p className="testimonial-des">{r.text}</p>
 
                   <div className="author">
                     <img src={r.avatar} alt={r.name} />
                     <div>
-                      <strong>{r.name}</strong>
-                      <span>{r.date}</span>
+                      <strong className="testimonial-author">{r.name}</strong>
+                      <span className="testimonial-date">{r.date}</span>
                     </div>
                   </div>
                 </div>
@@ -449,15 +475,15 @@ export default function Home() {
       <section className="guarantee">
         <div className="container guarantee-inner">
 
-          <h2 className="guarantee-title fade-up">
+          <h2 className="guarantee-title animate fade-up">
             7-Day Risk-Free Guarantee
           </h2>
 
-          <div className="guarantee-badge zoom-in">
+          <div className="guarantee-badge animate fade-up delay-1">
             <img src={guaranteeBadge} alt="100% Money Back Guarantee" />
           </div>
 
-          <p className="guarantee-text fade-up delay">
+          <p className="guarantee-text animate fade-up delay-2">
             If for any reason you are not satisfied, you can request a full
             refund 7 days after purchase, no questions asked.
           </p>
@@ -470,12 +496,12 @@ export default function Home() {
       <section className="cta-trial">
         <div className="container">
 
-          <h2 className="cta-title fade-up">
+          <h2 className="cta-title animate fade-up">
             Get a free ChatBot trial <br />
             and become one of them
           </h2>
 
-          <div className="cta-form fade-up delay">
+          <div className="cta-form animate fade-up delay-1">
             <input
               type="email"
               placeholder="Enter your business email"
@@ -483,7 +509,7 @@ export default function Home() {
             <button>Sign Up free</button>
           </div>
 
-          <div className="cta-points fade-up delay-2">
+          <div className="cta-points animate fade-up delay-2">
             <span>✓ Free 14-day trial</span>
             <span>✓ No credit card required</span>
           </div>
