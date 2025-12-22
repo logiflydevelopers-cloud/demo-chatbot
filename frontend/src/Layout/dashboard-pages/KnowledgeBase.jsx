@@ -1,6 +1,5 @@
 import React from "react";
 import "./KnowledgeBase.css";
-import { FiFileText } from "react-icons/fi";
 import { FaLink, FaQuestionCircle } from "react-icons/fa";
 import { AiOutlineFolderOpen } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
