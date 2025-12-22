@@ -27,6 +27,26 @@ import avatar3 from "../image/avatar-3.png";
 import badge20k from "../image/badge-20k.png";
 import guaranteeBadge from "../image/money-back.png";
 import starIcon from "../image/Vector.png";
+import arrowDownIcon from "../image/arrow-down-sign-to-navigate.png";
+
+// import calendarIcon from "../image/calendar.png";
+// import chatIcon from "../image/chat.png";
+// import headsetIcon from "../image/headset.png";
+// import shopIcon from "../image/shop.png";
+// import botIcon from "../image/bot.png";
+import liveChatIcon from "../image/Group 41.png";
+import helpDeskIcon from "../image/Group 42.png";
+import knowledgeBaseIcon from "../image/Group 43.png";
+import openWidgetIcon from "../image/Group 44.png";
+import shopIcon from "../image/Group.png";
+import calendarIcon from "../image/Group (1).png";
+import chatIcon from "../image/LiveChat-Logo-Orange-White-Stacked 1.png";
+import headsetIcon from "../image/Stacked_RGB_Green 1.png";
+import headsetIcon1 from "../image/zendesk_logo_icon_147198 1.png";
+import botIcon from "../image/image 65.png";
+import checkIcon from "../image/right-arrow.png";
+
+
 
 
 
@@ -71,12 +91,118 @@ const reviews = [
 
 const googleLogin = async () => {
   try {
-    const res = await axios.get("https://backend-demo-chatbot.vercel.app/api/auth/google");
-    window.location.href = res.data.url; 
+    const res = await axios.get("http://localhost:4000/api/auth/google");
+    window.location.href = res.data.url; // 🔥 direct Google login
   } catch (err) {
     console.error("Google login failed", err);
   }
 };
+
+function FAQAccordion() {
+  const [activeId, setActiveId] = useState(null);
+
+  const leftFaqs = [
+    {
+      id: "l1",
+      q: "Can I test ChatBot for free?",
+      a: "Yes, you can try ChatBot for free with limited features."
+    },
+    {
+      id: "l2",
+      q: "Are technical skills required?",
+      a: "No, anyone can set it up easily."
+    },
+    {
+      id: "l3",
+      q: "Can ChatBot be integrated with LiveChat?",
+      a: "Yes, ChatBot integrates smoothly with LiveChat tools."
+    },
+    {
+      id: "l4",
+      q: "What is a chatbot?",
+      a: "A chatbot is software that chats with users automatically."
+    }
+  ];
+
+  const rightFaqs = [
+    {
+      id: "r1",
+      q: "Does installing ChatBot require coding?",
+      a: "No coding is required. Just copy-paste the script."
+    },
+    {
+      id: "r2",
+      q: "What is a generative AI chatbot?",
+      a: "It uses AI models to generate smart replies."
+    },
+    {
+      id: "r3",
+      q: "Can one chatbot work on multiple channels?",
+      a: "Yes, one bot can serve website, WhatsApp and more."
+    },
+    {
+      id: "r4",
+      q: "How does a generative AI chatbot work?",
+      a: "It learns from data and responds intelligently."
+    }
+  ];
+
+  const toggleFAQ = (id) => {
+    setActiveId(activeId === id ? null : id);
+  };
+
+  return (
+    <div className="faq-grid">
+      {/* LEFT COLUMN */}
+      <div className="faq-col">
+        {leftFaqs.map((item) => (
+          <FAQItem
+            key={item.id}
+            item={item}
+            isOpen={activeId === item.id}
+            onClick={() => toggleFAQ(item.id)}
+          />
+        ))}
+      </div>
+
+      {/* RIGHT COLUMN */}
+      <div className="faq-col">
+        {rightFaqs.map((item) => (
+          <FAQItem
+            key={item.id}
+            item={item}
+            isOpen={activeId === item.id}
+            onClick={() => toggleFAQ(item.id)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FAQItem({ item, isOpen, onClick }) {
+  return (
+    <div className={`faq-item ${isOpen ? "open" : ""}`}>
+      <button className="faq-question" onClick={onClick}>
+        {item.q}
+        <span className="faq-arrow">
+          <img src={arrowDownIcon} alt="arrow" />
+        </span>
+      </button>
+
+
+      <div
+        className="faq-answer-wrapper"
+        style={{
+          maxHeight: isOpen ? "160px" : "0px"
+        }}
+      >
+        <div className="faq-answer">{item.a}</div>
+      </div>
+    </div>
+  );
+}
+
 
 
 export default function Home() {
@@ -105,6 +231,28 @@ export default function Home() {
 
     return () => observer.disconnect();
   }, []);
+
+
+  const toolItems = [
+    { text: "Show products", icon: shopIcon },
+    { text: "Create meeting", icon: calendarIcon },
+    { text: "Transfer to live agent", icon: chatIcon },
+    { text: "Create support ticket", icon: headsetIcon },
+    { text: "Create support ticket", icon: headsetIcon1 },
+  ];
+
+
+  const [toolIndex, setToolIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setToolIndex((prev) => (prev + 1) % toolItems.length);
+    }, 3200); // ⏱ smooth + premium speed
+
+    return () => clearInterval(interval);
+  }, []);
+
+
 
 
 
@@ -510,12 +658,148 @@ export default function Home() {
           </div>
 
           <div className="cta-points animate fade-up delay-2">
-            <span>✓ Free 14-day trial</span>
-            <span>✓ No credit card required</span>
+            <span className="cta-point">
+              <img src={checkIcon} alt="check" />
+              Free 7-day trial
+            </span>
+
+            <span className="cta-point">
+              <img src={checkIcon} alt="check" />
+              No credit card required
+            </span>
           </div>
+
 
         </div>
       </section>
+
+
+
+
+      <section className="tools-section">
+        <h2 className="guarantee-title animate fade-up tools-label">
+          Tools
+        </h2>
+        <div className="container tools-inner">
+
+          {/* LEFT */}
+          <div className="tools-left">
+
+            <h2>
+              Get more value from <br />
+              your favorite tools
+            </h2>
+
+            <p>
+              Enhance your AI chatbot with more features,
+              workflows, and automations through plug-and-play integrations.
+            </p>
+
+            <button className="tools-btn">
+              See all integrations →
+            </button>
+          </div>
+
+          {/* RIGHT */}
+          <div className="tools-right">
+
+            {/* FIXED BOT ICON */}
+            <div className="bot-icon">
+              <img src={botIcon} alt="Bot" />
+            </div>
+
+            {/* DOTTED CONNECTOR */}
+            <div className="bot-connector" />
+
+            {[0, 1, 2, 3, 4].map((pos) => {
+              const item =
+                toolItems[
+                (toolIndex + pos - 2 + toolItems.length) % toolItems.length
+                ];
+
+              const isCenter = pos === 2;
+
+              return (
+                <div
+                  key={pos}
+                  className={`tool-box b${pos + 1} ${isCenter ? "active" : ""}`}
+                >
+                  <img src={item.icon} alt={item.text} className="tool-icon" />
+                  <span className="tool-text">{item.text}</span>
+                </div>
+              );
+            })}
+          </div>
+
+
+        </div>
+      </section>
+
+
+
+      {/* =========================
+        FAQ SECTION
+========================= */}
+      <section className="faq-section">
+        <div className="container">
+          <h2 className="faq-title animate fade-up">
+            Frequently Asked Questions
+          </h2>
+
+          <FAQAccordion />
+        </div>
+      </section>
+
+
+
+      {/* =========================
+    PRODUCTS SECTION
+========================= */}
+      <section className="products-section">
+        <div className="container">
+
+          <h2 className="products-title">
+            Discover our <span>text|</span> products
+          </h2>
+
+          <div className="products-grid">
+
+            <div className="product-card">
+              <img src={liveChatIcon} alt="LiveChat" />
+              <div>
+                <h4>LiveChat</h4>
+                <p>Connect with customers</p>
+              </div>
+            </div>
+
+            <div className="product-card">
+              <img src={helpDeskIcon} alt="HelpDesk" />
+              <div>
+                <h4>HelpDesk</h4>
+                <p>Support customers<br />with tickets</p>
+              </div>
+            </div>
+
+            <div className="product-card">
+              <img src={knowledgeBaseIcon} alt="KnowledgeBase" />
+              <div>
+                <h4>KnowledgeBase</h4>
+                <p>Guide and educate<br />customers</p>
+              </div>
+            </div>
+
+            <div className="product-card">
+              <img src={openWidgetIcon} alt="OpenWidget" />
+              <div>
+                <h4>OpenWidget</h4>
+                <p>Enhance websites<br />with widgets</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
 
 
     </>
